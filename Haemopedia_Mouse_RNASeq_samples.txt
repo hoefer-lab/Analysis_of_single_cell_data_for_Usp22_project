@@ -1,0 +1,130 @@
+sampleId	celltype	cell Type Description	cell_lineage	tissue	treatment	immunophenotype	species	strain	sampleCode	RNA.Id	batch	firstPublished	cellOrder
+Fob.1	Fob	Follicular B cells	B Cell Lineage	Spleen	none	FSC-lo B220:+ CD21:+ CD23:+	Murine	C57BL/6	GSE60927.SRR1561641	SRR1561641	GSE60927	Shi et al, 2015; 25894659	1
+Fob.2	Fob	Follicular B cells	B Cell Lineage	Spleen	none	FSC-lo B220:+ CD21:+ CD23:+	Murine	C57BL/6	GSE60927.SRR1561642	SRR1561642	GSE60927	Shi et al, 2015; 25894659	1
+MZB.1	MZB	Marginal zone B cells	B Cell Lineage	Spleen	none	FSC-lo B220:+ CD21:-hi CD23:-	Murine	C57BL/6	GSE60927.SRR1561645	SRR1561645	GSE60927	Shi et al, 2015; 25894659	2
+MZB.2	MZB	Marginal zone B cells	B Cell Lineage	Spleen	none	FSC-lo B220:+ CD21:-hi CD23:-	Murine	C57BL/6	GSE60927.SRR1561646	SRR1561646	GSE60927	Shi et al, 2015; 25894659	2
+B1Pt.1	B1Pt	Peritoneal B1 cells	B Cell Lineage	Peritoneal lavage	none	B220:+ Mac1:-lo CD23:-	Murine	C57BL/6	GSE60927.SRR1561643	SRR1561643	GSE60927	Shi et al, 2015; 25894659	3
+B1Pt.2	B1Pt	Peritoneal B1 cells	B Cell Lineage	Peritoneal lavage	none	B220:+ Mac1:-lo CD23:-	Murine	C57BL/6	GSE60927.SRR1561644	SRR1561644	GSE60927	Shi et al, 2015; 25894659	3
+PtB.1	PtB	Total Peritoneal Cavity B Cells	B Cell Lineage	Peritoneal	none	B220/CD19;+, Ter119:-, F4/80:-, Mac-1:-	Murine	C57BL/6	CAGRF9188.1278	1278	CAGRF9188	Marsman et al, 2018; 29870118	4
+PtB.2	PtB	Total Peritoneal Cavity B Cells	B Cell Lineage	Peritoneal	none	B220/CD19;+, Ter119:-, F4/80:-, Mac-1:-	Murine	C57BL/6	CAGRF9188.1283	1283	CAGRF9188	Marsman et al, 2018; 29870118	4
+GCB.1	GCB	Germinal center B cells	B Cell Lineage	Spleen	none	CD19:+ Fas:+ PNA:+	Murine	C57BL/6	GSE60927.SRR1561647	SRR1561647	GSE60927	Shi et al, 2015; 25894659	5
+GCB.2	GCB	Germinal center B cells	B Cell Lineage	Spleen	none	CD19:+ Fas:+ PNA:+	Murine	C57BL/6	GSE60927.SRR1561648	SRR1561648	GSE60927	Shi et al, 2015; 25894659	5
+SplPlsB.1	SplPlsB	Splenic plasmablasts	B Cell Lineage	Spleen	none	CD138/Syndecan1:+ Blimp1:-GFP:-lo	Murine	C57BL/6 Blimp-GFP	GSE60927.SRR1561649	SRR1561649	GSE60927	Shi et al, 2015; 25894659	6
+SplPlsC.1	SplPlsC	Splenic plasma cells	B Cell Lineage	Spleen	none	CD138/Syndecan1:+ Blimp1:-GFP:-hi	Murine	C57BL/6 Blimp-GFP	GSE60927.SRR1561650	SRR1561650	GSE60927	Shi et al, 2015; 25894659	7
+SplPlsC.2	SplPlsC	Splenic plasma cells	B Cell Lineage	Spleen	none	CD138/Syndecan1:+ Blimp1:-GFP:-hi	Murine	C57BL/6 Blimp-GFP	GSE60927.SRR1561651	SRR1561651	GSE60927	Shi et al, 2015; 25894659	7
+SplPlsC.3	SplPlsC	Splenic plasma cells	B Cell Lineage	Spleen	none	CD138/Syndecan1:+ Blimp1:-GFP:-hi	Murine	C57BL/6 Blimp-GFP	GSE60927.SRR1561652	SRR1561652	GSE60927	Shi et al, 2015; 25894659	7
+BMPlsC.1	BMPlsC	Bone marrow plasma cells	B Cell Lineage	Bone marrow	none	CD138/Syndecan1:+ Blimp1:-GFP:-hi	Murine	C57BL/6 Blimp-GFP	GSE60927.SRR1561653	SRR1561653	GSE60927	Shi et al, 2015; 25894659	8
+BasoBM.1	BasoBM	Bone Marrow Basophil	Basophil Lineage	BM Crush	none	CD49b:+ cKit:- FceR1:+ CD45:+ CD123:+ CD16/32:+ Ly6G:- Gr-1:- B220:- F4/80:-	Murine	C57BL/6	CAGRF11700.1502	1502	CAGRF11700		1
+BasoBM.2	BasoBM	Bone Marrow Basophil	Basophil Lineage	BM Crush	none	CD49b:+ cKit:- FceR1:+ CD45:+ CD123:+ CD16/32:+ Ly6G:- Gr-1:- B220:- F4/80:-	Murine	C57BL/6	CAGRF11700.1503	1503	CAGRF11700		1
+BasoSpl.1	BasoSpl	Splenic Basophil	Basophil Lineage	Spleen	none	CD49b:+ cKit:- FceR1:+ Ly6G:- Gr-1:- CD16/32:+	Murine	C57BL/6	CAGRF9188.1460	1460	CAGRF9188		2
+BasoCult.1	BasoCult	Cultured Basophil	Basophil Lineage	BM	day 10 BM culture with SCF + IL-3	Gr-1:- cKit:- CD49b:+ FcepsilonR1:+	Murine	C57BL/6	CAGRF7126.1213	1213	CAGRF7126		3
+BasoCult.2	BasoCult	Cultured Basophil	Basophil Lineage	BM	day 10 BM culture with SCF + IL-3	Gr-1:- cKit:- CD49b:+ FcepsilonR1:+	Murine	C57BL/6	CAGRF7126.1332	1332	CAGRF7126		3
+cDC2.1	cDC2	Conventional DC type 2	Dendritic Cell Lineage	Spleen	none	CD11c:+ 120G8:- Sirp alpha:+ CD8alpha:- F4/80:- or Lo	Murine	C57BL/6	CAGRF11700.1545	1545	CAGRF11700		1
+cDC2.2	cDC2	Conventional DC type 2	Dendritic Cell Lineage	Spleen	none	CD11c:+ 120G8:- Sirp alpha:+ CD8alpha:- F4/80:- or Lo	Murine	C57BL/6	CAGRF11700.1546	1546	CAGRF11700		1
+pDC.1	pDC	Plasmacytoid DC	Dendritic Cell Lineage	Spleen	none	CD11c:+ 120G8:+ F4/80:-	Murine	C57BL/6	CAGRF11700.1543	1543	CAGRF11700	Marsman et al, 2018; 29870118	2
+pDC.2	pDC	Plasmacytoid DC	Dendritic Cell Lineage	Spleen	none	CD11c:+ 120G8:+ F4/80:-	Murine	C57BL/6	CAGRF11700.1544	1544	CAGRF11700	Marsman et al, 2018; 29870118	2
+EoP.1	EoP	Eosinophil Progenitor	Eosinophil Lineage	BM	none	Lin:- cKit:- Sca1:- CD150:- CD16/32:Hi CD34:+ IL-5ra:+	Murine	C57BL/6	CAGRF7126.1375	1375	CAGRF7126	Bolden et al, 2018; 29645346	1
+EoP.2	EoP	Eosinophil Progenitor	Eosinophil Lineage	BM	none	Lin:- cKit:- Sca1:- CD150:- CD16/32:Hi CD34:+ IL-5ra:+	Murine	C57BL/6	CAGRF7126.1376	1376	CAGRF7126	Bolden et al, 2018; 29645346	1
+Eo.1	Eo	Eosinophil	Eosinophil Lineage	BM	none	IL-5:lo, Ly6G:-, Siglec-F+	Murine	C57BL/6	CAGRF7126.1260	1260	CAGRF7126	Bolden et al, 2018; 29645346	2
+Eo.2	Eo	Eosinophil	Eosinophil Lineage	BM	none	IL-5:Lo Ly6G:+ Siglec-F:+ Ly6C:+ Ter119:- CD4:- CD8:- CD19:- B220:-	Murine	C57BL/6	CAGRF9188.1422	1422	CAGRF9188	Bolden et al, 2018; 29645346	2
+Eo.3	Eo	Eosinophil	Eosinophil Lineage	BM	none	IL-5:Lo Ly6G:+ Siglec-F:+ Ly6C:+ Ter119:- CD4:- CD8:- CD19:- B220:-	Murine	C57BL/6	CAGRF9188.1423	1423	CAGRF9188	Bolden et al, 2018; 29645346	2
+EoSSCLo.1	EoSSCLo	Eosinophil Low Side Scatter	Eosinophil Lineage	BM	none	SiglecF:+ IL5raIntSSC:Lo	Murine	C57BL/6	CAGRF11700.1557	1557	CAGRF11700		3
+EoSSCLo.2	EoSSCLo	Eosinophil Low Side Scatter	Eosinophil Lineage	BM	none	SiglecF:+ IL5raIntSSC:Lo	Murine	C57BL/6	CAGRF11700.1558	1558	CAGRF11700		3
+EoSSCLo.3	EoSSCLo	Eosinophil Low Side Scatter	Eosinophil Lineage	BM	none	SiglecF:+ IL5raIntSSC:Lo	Murine	C57BL/6	CAGRF11700.1567	1567	CAGRF11700		3
+EoSSCLo.4	EoSSCLo	Eosinophil Low Side Scatter	Eosinophil Lineage	BM	none	PI:- CD4:- CD8:- CD19:- B220:- Ter119:- Ly6C:+/- SiglecF:+ Ly6G:- SSC-A:Lo (30% Eos)	Murine	C57BL/6	CAGRF11700.1633	1633	CAGRF11700		3
+EoSSCLo.5	EoSSCLo	Eosinophil Low Side Scatter	Eosinophil Lineage	BM	none	PI:- CD4:- CD8:- CD19:- B220:- Ter119:- Ly6C:+/- SiglecF:+ Ly6G:- SSC-A:Lo (30% Eos)	Murine	C57BL/6	CAGRF11700.1634	1634	CAGRF11700		3
+EoSSCHi.1	EoSSCHi	Eosinophil High Side Scatter	Eosinophil Lineage	BM	none	SiglecF:+ IL5raIntSSC:Hi	Murine	C57BL/6	CAGRF11700.1556	1556	CAGRF11700		4
+EoSSCHi.2	EoSSCHi	Eosinophil High Side Scatter	Eosinophil Lineage	BM	none	SiglecF:+ IL5raIntSSC:Hi	Murine	C57BL/6	CAGRF11700.1560	1560	CAGRF11700		4
+EoSSCHi.3	EoSSCHi	Eosinophil High Side Scatter	Eosinophil Lineage	BM	none	SiglecF:+ IL5raIntSSC:Hi	Murine	C57BL/6	CAGRF11700.1568	1568	CAGRF11700		4
+EoSSCHi.4	EoSSCHi	Eosinophil High Side Scatter	Eosinophil Lineage	BM	none	SiglecF:+ IL5raIntSSC:Hi	Murine	C57BL/6	CAGRF11700.1571	1571	CAGRF11700		4
+EoSSCHi.5	EoSSCHi	Eosinophil High Side Scatter	Eosinophil Lineage	BM	none	SiglecF:+ IL5raIntSSC:Hi	Murine	C57BL/6	CAGRF11700.1576	1576	CAGRF11700		4
+EoSSCHi.6	EoSSCHi	Eosinophil High Side Scatter	Eosinophil Lineage	BM	none	PI:- CD4:- CD8:- CD19:- B220:- Ter119:- Ly6C:+/- SiglecF:+ Ly6G:- SSC-A:Hi (30% Eos)	Murine	C57BL/6	CAGRF11700.1632	1632	CAGRF11700		4
+EoCult.1	EoCult	Cultured Eosinophil	Eosinophil Lineage	Fetal liver	Cultured Fetal liver	SiglecF:+	Murine	C57BL/6	CAGRF11700.1596	1596	CAGRF11700		5
+EoCult.2	EoCult	Cultured Eosinophil	Eosinophil Lineage	Fetal liver	Cultured Fetal liver	SiglecF:+	Murine	C57BL/6	CAGRF11700.1597	1597	CAGRF11700		5
+PreCFUE.1	PreCFUE	Pre Erythroid Colony Forming Unit	Erythrocyte Lineage	BM (Crush)	none	Lin- cKit+ Sca1- CD150- FcgRII/III (CD16/32)- Endoglinhi	Murine	C57BL/6	CAGRF7126.1217	1217	CAGRF7126		1
+PreCFUE.2	PreCFUE	Pre Erythroid Colony Forming Unit	Erythrocyte Lineage	BM (Crush)	none	Lin- cKit+ Sca1- CD150- FcgRII/III (CD16/32)- Endoglinhi	Murine	C57BL/6	CAGRF7126.1229	1229	CAGRF7126		1
+MEP.1	MEP	Megakaryocyte Erythrocyte Progenitor	Erythrocyte Lineage	BM	none	Lin:- cKit:- Sca1:- CD16/32:- CD34:- IL-5ra:-	Murine	C57BL/6	CAGRF9188.1369	1369	CAGRF9188		2
+MEP.2	MEP	Megakaryocyte Erythrocyte Progenitor	Erythrocyte Lineage	BM	none	Lin:- cKit:- Sca1:- CD16/32:- CD34:- IL-5ra:-	Murine	C57BL/6	CAGRF9188.1370	1370	CAGRF9188		2
+CFUE.1	CFUE	Erythroid Colony Forming Unit	Erythrocyte Lineage	BM (Crush)	none	Lin- cKit+ Sca1- CD150- FcgRII/III (CD16/32)- Endoglinhi	Murine	C57BL/6	CAGRF7126.1222	1222	CAGRF7126		3
+CFUE.2	CFUE	Erythroid Colony Forming Unit	Erythrocyte Lineage	BM (Crush)	none	Lin- cKit+ Sca1- CD150- FcgRII/III (CD16/32)- Endoglinhi	Murine	C57BL/6	CAGRF7126.1223	1223	CAGRF7126		3
+EryBlPB.1	EryBlPB	Polychromatic erythroblasts (some Basophillic erythroblasts)	Erythrocyte Lineage	BM	none	Ter119+ CD44+ FSC:Hi CD3- CD4- CD8- CD19- Mac1- Gr1-	Murine	C57BL/6	CAGRF9188.1409_1465	1409_1465	CAGRF9188		4
+EryBlPB.2	EryBlPB	Polychromatic erythroblasts (some Basophillic erythroblasts)	Erythrocyte Lineage	BM	none	Ter119+ CD44+ FSC:Hi CD3- CD4- CD8- CD19- Mac1- Gr1-	Murine	C57BL/6	CAGRF9188.1410	1410	CAGRF9188		4
+EryBlPB.3	EryBlPB	Polychromatic erythroblasts (some Basophillic erythroblasts)	Erythrocyte Lineage	BM	none	Ter119+ CD44+ FSC:Hi CD3- CD4- CD8- CD19- Mac1- Gr1-	Murine	C57BL/6	CAGRF9188.1472	1472	CAGRF9188		4
+EryBlPO.1	EryBlPO	Polychromatic erythroblasts (some Orthochromatic erythroblasts)	Erythrocyte Lineage	BM	none	Ter119+ CD44+ FSC:Mid CD3- CD4- CD8- CD19- Mac1- Gr1-	Murine	C57BL/6	CAGRF9188.1408_1463	1408_1463	CAGRF9188		5
+EryBlPO.2	EryBlPO	Polychromatic erythroblasts (some Orthochromatic erythroblasts)	Erythrocyte Lineage	BM	none	Ter119+ CD44+ FSC:Mid CD3- CD4- CD8- CD19- Mac1- Gr1-	Murine	C57BL/6	CAGRF9188.1462	1462	CAGRF9188		5
+EryBlPO.3	EryBlPO	Polychromatic erythroblasts (some Orthochromatic erythroblasts)	Erythrocyte Lineage	BM	none	Ter119+ CD44+ FSC:Mid CD3- CD4- CD8- CD19- Mac1- Gr1-	Murine	C57BL/6	CAGRF9188.1471	1471	CAGRF9188		5
+Retic.1	Retic	Reticulocyte	Erythrocyte Lineage	BM	none	Ter119+ CD44weak FSC:Low CD3- CD4- CD8- CD19- Mac1- Gr1-	Murine	C57BL/6	CAGRF9188.1428	1428	CAGRF9188		6
+Retic.2	Retic	Reticulocyte	Erythrocyte Lineage	BM	none	Ter119+ CD44weak FSC:Low CD3- CD4- CD8- CD19- Mac1- Gr1-	Murine	C57BL/6	CAGRF9188.1445	1445	CAGRF9188		6
+Retic.3	Retic	Reticulocyte	Erythrocyte Lineage	BM	none	Ter119+ CD44weak FSC:Low CD3- CD4- CD8- CD19- Mac1- Gr1-	Murine	C57BL/6	CAGRF9188.1446	1446	CAGRF9188		6
+MonoBM.1	MonoBM	Total Monocyte Bone Marrow	Macrophage Lineage	BM	none	Ly6G:- Ly6C:Hi CD115:+ F4/80:Lo	Murine	C57BL/6	CAGRF9188.1333	1333	CAGRF9188		1
+MonoBM.2	MonoBM	Total Monocyte Bone Marrow	Macrophage Lineage	BM	none	Ly6G:- Ly6C:Hi CD115:+ F4/80:Lo	Murine	C57BL/6	CAGRF9188.1334	1334	CAGRF9188		1
+MonoPB.1	MonoPB	Total Monocyte Peripheral Blood	Macrophage Lineage	Blood	none	Mac-1:+ Ly6C:Hi CD115:+ F4/80:Lo Ter119:- SiglecF:- Ly6G:- B220:- CD4:- CD8:-	Murine	C57BL/6	CAGRF7126.1414	1414	CAGRF7126		2
+MonoPB.2	MonoPB	Total Monocyte Peripheral Blood	Macrophage Lineage	Blood	none	Mac-1:+ Ly6C:Hi CD115:+ F4/80:Lo Ter119:- SiglecF:- Ly6G:- B220:- CD4:- CD8:-	Murine	C57BL/6	CAGRF7126.1415	1415	CAGRF7126		2
+Mac.1	Mac	Macrophage	Macrophage Lineage	Peritoneal	none	F4/80:+, Mac-1:+, B220:-, CD19;-, Ter119:-	Murine	C57BL/6	CAGRF7126.1282	1282	CAGRF7126		3
+Mac.2	Mac	Macrophage	Macrophage Lineage	Peritoneal	none	F4/80:+, Mac-1:+, B220:-, CD19;-, Ter119:-	Murine	C57BL/6	CAGRF7126.1286	1286	CAGRF7126		3
+InfMono.1	InfMono	Inflammatory Monocyte	Macrophage Lineage	BM	none	IgG:Lo Ly6C:Hi CD115:+ Ly6G:- CD11c:- CD62L:+	Murine	C57BL/6	CAGRF9188.1390	1390	CAGRF9188		4
+InfMono.2	InfMono	Inflammatory Monocyte	Macrophage Lineage	BM	none	IgG:Lo Ly6C:Hi CD115:+ Ly6G:- CD11c:- CD62L:+	Murine	C57BL/6	CAGRF9188.1392	1392	CAGRF9188		4
+MacCult.1	MacCult	Mac1+ F4/80+ cultured macrophage	Macrophage Lineage	Fetal liver	Day5 Cultured M-CSF Fetal liver	Mac1:+ F4/80:+	Murine	C57BL/6	CAGRF11700.1599	1599	CAGRF11700		5
+MacCult.2	MacCult	Mac1+ F4/80+ cultured macrophage	Macrophage Lineage	Fetal liver	Day5 Cultured M-CSF Fetal liver	Mac1:+ F4/80:+	Murine	C57BL/6	CAGRF11700.1600	1600	CAGRF11700		5
+MacCult.3	MacCult	Mac1+ F4/80+ cultured macrophage	Macrophage Lineage	Fetal liver	Day5 Cultured M-CSF Fetal liver	Mac1:+ F4/80:+	Murine	C57BL/6	CAGRF11700.1610	1610	CAGRF11700		5
+Mast.1	Mast	Mast Cell	Mast Cell Lineage	Peritoneal	none	cKit:+ Mac1:- CD19:- Ter119:- F4/80:- B220:- Fc_RI:+	Murine	C57BL/6	CAGRF7126.1413	1413	CAGRF7126		1
+Mast.2	Mast	Mast Cell	Mast Cell Lineage	Peritoneal	none	cKit+, Mac-1-, CD19-, Ter119-, F4/80-, B220-, IgE+, Fc_RI+	Murine	C57BL/6	CAGRF9188.1246_1248_1289	1246_1248_1289	CAGRF9188		1
+MegTPO.1	MegTPO	Megakaryocyte fromTPO culture	Megakaryocyte Lineage	BM	day 3 BM culture with TPO	Lin:- cKit:+ Sca1:- CD150:+	Murine	C57BL/6	CAGRF7658.1338	1338	CAGRF7658		2
+MegTPO.2	MegTPO	Megakaryocyte fromTPO culture	Megakaryocyte Lineage	BM	day 3 BM culture with TPO	Lin:- cKit:+ Sca1:- CD150:+	Murine	C57BL/6	CAGRF7658.1339	1339	CAGRF7658		2
+STHSC.1	STHSC	Short Term HSC	Multi Potential Progenitor	BM	none	Lin:- cKit:+ Sca1:- CD34:+ CD135(Flt3):-	Murine	C57BL/6	CAGRF9188.1399	1399	CAGRF9188		1
+STHSC.2	STHSC	Short Term HSC	Multi Potential Progenitor	BM	none	Lin:- cKit:+ Sca1:- CD34:+ CD135(Flt3):-	Murine	C57BL/6	CAGRF9188.1400	1400	CAGRF9188		1
+LSK.1	LSK	Lineage Negative Sca+ Kit+ Multi Potential Progenitor	Multi Potential Progenitor	BM (Crush)	none	Lin- cKit+ Sca1-	Murine	C57BL/6	CAGRF7126.1232	1232	CAGRF7126		2
+LSK.2	LSK	Lineage Negative Sca+ Kit+ Multi Potential Progenitor	Multi Potential Progenitor	BM	none	Lin- cKit+ Sca1+	Murine	C57BL/6	CAGRF7126.1294	1294	CAGRF7126		2
+MPP.1	MPP	Multi Potential Progenitor	Multi Potential Progenitor	BM	none	Lin:- cKit:+ Sca1:- CD34:+ CD135(Flt3):+	Murine	C57BL/6	CAGRF9188.1395	1395	CAGRF9188		3
+MPP.2	MPP	Multi Potential Progenitor	Multi Potential Progenitor	BM	none	Lin:- cKit:+ Sca1:- CD34:+ CD135(Flt3):+	Murine	C57BL/6	CAGRF9188.1396	1396	CAGRF9188		3
+NeutBM.1	NeutBM	Bone Marrow Neutrophil	Neutrophil Lineage	BM	none	IL-5:hi, Ly6G:hi, Siglec-F-	Murine	C57BL/6	CAGRF7126.1249	1249	CAGRF7126		1
+NeutBM.2	NeutBM	Bone Marrow Neutrophil	Neutrophil Lineage	BM	none	IL-5:hi, Ly6G:hi, Siglec-F-	Murine	C57BL/6	CAGRF7126.1250	1250	CAGRF7126		1
+NeutPB.1	NeutPB	Peripheral Blood Neutrophil	Neutrophil Lineage	Peripheral Blood	none	IL-5:Hi Ly6G:Hi Siglec-F:lo Ly6C:+	Murine	C57BL/6	CAGRF9188.1420	1420	CAGRF9188		2
+NeutPB.2	NeutPB	Peripheral Blood Neutrophil	Neutrophil Lineage	Peripheral Blood	none	IL-5:Hi Ly6G:Hi Siglec-F:lo Ly6C:+  B220:- CD4:- CD8:- CD19:- Ter119:-	Murine	C57BL/6	CAGRF9188.1438	1438	CAGRF9188		2
+NeutPB.3	NeutPB	Peripheral Blood Neutrophil	Neutrophil Lineage	Peripheral Blood	none	IL-5:+ Ly6G:Hi Siglec-F:lo Ly6C:+ B220:- CD4:- CD8:- CD19:- Ter119:- F4/80:-	Murine	C57BL/6	CAGRF11700.1535	1535	CAGRF11700		2
+NeutPB.4	NeutPB	Peripheral Blood Neutrophil	Neutrophil Lineage	Peripheral Blood	none	IL-5:+ Ly6G:Hi Siglec-F:lo Ly6C:+ B220:- CD4:- CD8:- CD19:- Ter119:- F4/80:-	Murine	C57BL/6	CAGRF11700.1536	1536	CAGRF11700		2
+NK.1	NK	Mature Natural Killer Cell	NK Cell Lineage	Spleen	none	NK1.1:+ Mac-1:+ MHCcII:- CD3_:- CD11c:- B220:-  CD4:- CD8:- CD19:- F4/80:- Ter119:- Ly6G:- FSC-A:Lo & SSC-A:Lo	Murine	C57BL/6	CAGRF11700.1523	1523	CAGRF11700		1
+NK.2	NK	Mature Natural Killer Cell	NK Cell Lineage	Spleen	none	NK1.1:+ Mac-1:+ MHCcII:- CD3_:- CD11c:- B220:-  CD4:- CD8:- CD19:- F4/80:- Ter119:- Ly6G:- FSC-A:Lo & SSC-A:Lo	Murine	C57BL/6	CAGRF11700.1524	1524	CAGRF11700		1
+CMP.1	CMP	Common Myeloid Progenitor	Restricted Potential Progenitor	BM	none	Lin:- cKit:- Sca1:-  CD16/32:+ CD34:+ IL-5ra:-	Murine	C57BL/6	CAGRF9188.1371	1371	CAGRF9188	Bolden et al, 2018; 29645346	1
+CMP.2	CMP	Common Myeloid Progenitor	Restricted Potential Progenitor	BM	none	Lin:- cKit:- Sca1:-  CD16/32:+ CD34:+ IL-5ra:-	Murine	C57BL/6	CAGRF9188.1373	1373	CAGRF9188	Bolden et al, 2018; 29645346	1
+PreGMFlt3Neg.1	PreGMFlt3Neg	Flt3- Pre Granulocyte Macrophage Progenitor	Restricted Potential Progenitor	Bone Marrow	none	Lin:- cKit:+ Sca1:- CD150:- FcgRII/III (CD16/32):- Endoglin:- Flt3:-	Murine	C57BL/6	CAGRF13029.1224	1224	CAGRF13029		2
+PreGMFlt3Neg.2	PreGMFlt3Neg	Flt3- Pre Granulocyte Macrophage Progenitor	Restricted Potential Progenitor	Bone Marrow	none	Lin:- cKit:+ Sca1:- CD150:- FcgRII/III (CD16/32):- Endoglin:- Flt3:-	Murine	C57BL/6	CAGRF13029.1225	1225	CAGRF13029		2
+PreGMFlt3Pos.1	PreGMFlt3Pos	Flt3+ Pre Granulocyte Macrophage Progenitor	Restricted Potential Progenitor	Bone Marrow	none	Lin:- cKit:+ Sca1:- CD150:- FcgRII/III (CD16/32):- Endoglin:- Flt3:+	Murine	C57BL/6	CAGRF13029.1226	1226	CAGRF13029		3
+PreGMFlt3Pos.2	PreGMFlt3Pos	Flt3+ Pre Granulocyte Macrophage Progenitor	Restricted Potential Progenitor	Bone Marrow	none	Lin:- cKit:+ Sca1:- CD150:- FcgRII/III (CD16/32):- Endoglin:- Flt3:+	Murine	C57BL/6	CAGRF13029.1227	1227	CAGRF13029		3
+GMP.1	GMP	Granulocyte Macrophage Progenitor	Restricted Potential Progenitor	BM	none	Lin:- cKit:- Sca1:- CD150:- CD16/32:Hi CD34:+ IL-5ra:-	Murine	C57BL/6	CAGRF7126.1377	1377	CAGRF7126	Bolden et al, 2018; 29645346	4
+GMP.2	GMP	Granulocyte Macrophage Progenitor	Restricted Potential Progenitor	BM	none	Lin:- cKit:- Sca1:- CD150:- CD16/32:Hi CD34:+ IL-5ra:-	Murine	C57BL/6	CAGRF7126.1379	1379	CAGRF7126	Bolden et al, 2018; 29645346	4
+GMPSigF.1	GMPSigF	Granulocyte Macrophage Progenitor SIglecF Positive	Restricted Potential Progenitor	BM	none	PI:- CD4:- CD8:- CD19:- B220:- Ter119:- Ly6C:+/- SiglecF:+ Ly6G:- SSC-A:v.lo FSC-A:In	Murine	C57BL/6	CAGRF11700.1555	1555	CAGRF11700		8
+GMPSigF.2	GMPSigF	Granulocyte Macrophage Progenitor SIglecF Positive	Restricted Potential Progenitor	BM	none	PI:- CD4:- CD8:- CD19:- B220:- Ter119:- Ly6C:+/- SiglecF:+ Ly6G:- SSC-A:v.lo FSC-A:In	Murine	C57BL/6	CAGRF11700.1559	1559	CAGRF11700		8
+GMPSigF.3	GMPSigF	Granulocyte Macrophage Progenitor SIglecF Positive	Restricted Potential Progenitor	BM	none	PI:- CD4:- CD8:- CD19:- B220:- Ter119:- Ly6C:+/- SiglecF:+ Ly6G:- SSC-A:v.lo FSC-A:In	Murine	C57BL/6	CAGRF11700.1570	1570	CAGRF11700		8
+GMPSigF.4	GMPSigF	Granulocyte Macrophage Progenitor SIglecF Positive	Restricted Potential Progenitor	BM	none	PI:- CD4:- CD8:- CD19:- B220:- Ter119:- Ly6C:+/- SiglecF:+ Ly6G:- SSC-A:v.lo FSC-A:In	Murine	C57BL/6	CAGRF11700.1631	1631	CAGRF11700		8
+GMPSigF.5	GMPSigF	Granulocyte Macrophage Progenitor SIglecF Positive	Restricted Potential Progenitor	BM	none	PI:- CD4:- CD8:- CD19:- B220:- Ter119:- Ly6C:+/- SiglecF:+ Ly6G:- SSC-A:v.lo FSC-A:In	Murine	C57BL/6	CAGRF11700.1635	1635	CAGRF11700		8
+GMP_IRF8lo.1	GMP_IRF8lo	IRF8 Low Granulocyte Macrophage Progenitor	Restricted Potential Progenitor	Bone Marrow	none	Lin:- cKit:- Sca1:- CD150:- CD16/32:+ Irf8:Lo	Murine	C57BL/6 IRF8-GFP	CAGRF13029.1359	1359	CAGRF13029		5
+GMP_IRF8lo.2	GMP_IRF8lo	IRF8 Low Granulocyte Macrophage Progenitor	Restricted Potential Progenitor	Bone Marrow	none	Lin:- cKit:- Sca1:- CD150:- CD16/32:+ Irf8:Lo	Murine	C57BL/6 IRF8-GFP	CAGRF13029.1360	1360	CAGRF13029		5
+GMP_IRF8int.1	GMP_IRF8int	IRF8 High Granulocyte Macrophage Progenitor	Restricted Potential Progenitor	Bone Marrow	none	Lin:- cKit:- Sca1:- CD150:- CD16/32:+ Irf8:In	Murine	C57BL/6 IRF8-GFP	CAGRF13029.1362	1362	CAGRF13029		6
+GMP_IRF8int.2	GMP_IRF8int	IRF8 High Granulocyte Macrophage Progenitor	Restricted Potential Progenitor	Bone Marrow	none	Lin:- cKit:- Sca1:- CD150:- CD16/32:+ Irf8:In	Murine	C57BL/6 IRF8-GFP	CAGRF13029.1363	1363	CAGRF13029		6
+GMP_IRF8hi.1	GMP_IRF8hi	IRF8 High Granulocyte Macrophage Progenitor	Restricted Potential Progenitor	Bone Marrow	none	Lin:- cKit:- Sca1:- CD150:- CD16/32:+ Irf8:Hi	Murine	C57BL/6 IRF8-GFP	CAGRF13029.1365	1365	CAGRF13029		7
+GMP_IRF8hi.2	GMP_IRF8hi	IRF8 High Granulocyte Macrophage Progenitor	Restricted Potential Progenitor	Bone Marrow	none	Lin:- cKit:- Sca1:- CD150:- CD16/32:+ Irf8:Hi	Murine	C57BL/6 IRF8-GFP	CAGRF13029.1366	1366	CAGRF13029		7
+FcgRCD150.1	FcgRCD150	FcgammaR+ CD150+ Progenitor	Restricted Potential Progenitor	Bone Marrow	none	Lin:- cKit:+ Sca1:- CD150:+ FcgRII/III (CD16/32):+ CD9:hi	Murine	C57BL/6	CAGRF13029.1219	1219	CAGRF13029		9
+FcgRCD150.2	FcgRCD150	FcgammaR+ CD150+ Progenitor	Restricted Potential Progenitor	Bone Marrow	none	Lin:- cKit:+ Sca1:- CD150:+ FcgRII/III (CD16/32):+ CD9:hi	Murine	C57BL/6	CAGRF13029.1220	1220	CAGRF13029		9
+CD9Hi.1	CD9Hi	CD9Hi bipotential megakaryocyte erythroid progenitors	Restricted Potential Progenitor	Bone Marrow	none	Lin:- cKit:+ Sca1:- CD150:+ FcgRII/III (CD16/32):- Endoglin:lo CD9:hi	Murine	C57BL/6	CAGRF13029.1155	1155	CAGRF13029		10
+CD9Hi.2	CD9Hi	CD9Hi bipotential megakaryocyte erythroid progenitors	Restricted Potential Progenitor	Bone Marrow	none	Lin:- cKit:+ Sca1:- CD150:+ FcgRII/III (CD16/32):- Endoglin:lo CD9:hi	Murine	C57BL/6	CAGRF13029.1230	1230	CAGRF13029		10
+BEMP.1	BEMP	Bipotential Erythroid Megakaryocyte Progenitors (BEMP)	Restricted Potential Progenitor	Bone Marrow	none	Lin:- cKit:+ Sca1:- CD150:+ FcgRII/III (CD16/32):- Endoglin:lo CD9:lo	Murine	C57BL/6	CAGRF13029.1216	1216	CAGRF13029		11
+BEMP.2	BEMP	Bipotential Erythroid Megakaryocyte Progenitors (BEMP)	Restricted Potential Progenitor	Bone Marrow	none	Lin:- cKit:+ Sca1:- CD150:+ FcgRII/III (CD16/32):- Endoglin:lo CD9:lo	Murine	C57BL/6	CAGRF13029.1228	1228	CAGRF13029		11
+CLP.1	CLP	Common Lymphoid Progenitor	Restricted Potential Progenitor	BM	none	Lin:- cKit:Lo Sca1:Lo CD127rec:Lo CD135(Flt3):+	Murine	C57BL/6	CAGRF9188.1073_1074_1406_1407	1073_1074_1406_1407	CAGRF9188		12
+CLP.2	CLP	Common Lymphoid Progenitor	Restricted Potential Progenitor	BM	none	Lin:- cKit:Lo Sca1:Lo CD127rec:Lo CD135(Flt3):+	Murine	C57BL/6	CAGRF9188.1437	1437	CAGRF9188		12
+NveCD4T.1	NveCD4T	CD4 Naive T Cell	T Cell Lineage	Spleen & LN	none	CD4:+ CD25:- CD62L:+ CD44:-	Murine	C57BL/6	CAGRF11700.1519	1519	CAGRF11700	Marsman et al, 2018; 29870118	1
+NveCD4T.2	NveCD4T	CD4 Naive T Cell	T Cell Lineage	Spleen & LN	none	CD4:+ CD25:- CD62L:+ CD44:-	Murine	C57BL/6	CAGRF11700.1520	1520	CAGRF11700	Marsman et al, 2018; 29870118	1
+NveCd8T.1	NveCd8T	CD8+ Naive T Cell	T Cell Lineage	Spleen & LN	none	CD8:+ CD62L:+ CD44:-	Murine	C57BL/6	CAGRF11700.1532	1532	CAGRF11700	Marsman et al, 2018; 29870118	2
+NveCd8T.2	NveCd8T	CD8+ Naive T Cell	T Cell Lineage	Spleen & LN	none	CD8:+ CD62L:+ CD44:-	Murine	C57BL/6	CAGRF11700.1533	1533	CAGRF11700	Marsman et al, 2018; 29870118	2
+CD4T.1	CD4T	Total CD4+ T Cell	T Cell Lineage	LN & Spleen	none	CD8:-, CD4:+, CD3:+, NK1.1:-	Murine	C57BL/6	CAGRF7126.1273	1273	CAGRF7126		3
+CD4T.2	CD4T	Total CD4+ T Cell	T Cell Lineage	LN & Spleen	none	CD8:-, CD4:+, CD3:+, NK1.1:-	Murine	C57BL/6	CAGRF7126.1274	1274	CAGRF7126		3
+CD8T.1	CD8T	Total CD8+ T Cell	T Cell Lineage	LN & Spleen	none	CD8:+, CD4:-, CD3:+, NK1.1:-	Murine	C57BL/6	CAGRF7126.1267	1267	CAGRF7126		4
+CD8T.2	CD8T	Total CD8+ T Cell	T Cell Lineage	LN & Spleen	none	CD8:+, CD4:-, CD3:+, NK1.1:-	Murine	C57BL/6	CAGRF7126.1269	1269	CAGRF7126		4
+EffCD4T.1	EffCD4T	CD4 Effector T Cell	T Cell Lineage	Spleen & LN	none	CD4:+ CD25:- CD62L:- CD44:+	Murine	C57BL/6	CAGRF11700.1517	1517	CAGRF11700		5
+EffCD4T.2	EffCD4T	CD4 Effector T Cell	T Cell Lineage	Spleen & LN	none	CD4:+ CD25:- CD62L:- CD44:+	Murine	C57BL/6	CAGRF11700.1518	1518	CAGRF11700		5
+RegT.1	RegT	Regulatory T Cell	T Cell Lineage	Spleen & LN	none	CD4:+ CD25:Hi	Murine	C57BL/6	CAGRF11700.1522	1522	CAGRF11700		6
+RegT.2	RegT	Regulatory T Cell	T Cell Lineage	Spleen & LN	none	CD4:+ CD25:Hi	Murine	C57BL/6	CAGRF11700.1539	1539	CAGRF11700		6
+MemCD4T.1	MemCD4T	CD4 Memory T Cell	T Cell Lineage	Spleen & LN	none	CD4:+ CD25:- CD62L:Lo CD44:+	Murine	C57BL/6	CAGRF11700.1516	1516	CAGRF11700		7
+MemCD4T.2	MemCD4T	CD4 Memory T Cell	T Cell Lineage	Spleen & LN	none	CD4:+ CD25:- CD62L:Lo CD44:+	Murine	C57BL/6	CAGRF11700.1540	1540	CAGRF11700		7
+MemCD8T.1	MemCD8T	CD8+ Memory T Cell	T Cell Lineage	Spleen & LN	none	CD8:+ CD62L:+ CD44:+	Murine	C57BL/6	CAGRF11700.1530	1530	CAGRF11700		8
+MemCD8T.2	MemCD8T	CD8+ Memory T Cell	T Cell Lineage	Spleen & LN	none	CD8:+ CD62L:+ CD44:+	Murine	C57BL/6	CAGRF11700.1541	1541	CAGRF11700		8

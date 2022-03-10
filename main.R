@@ -41,7 +41,13 @@ library(gridExtra)
 library(plotly)
 library(EDASeq)
 library(slider)
-
+library(FateID)
+library(pheatmap)
+library(ggpubr)
+library(grDevices)
+library(rgl)
+library(magick)
+library(maptree)
 
 # load required functions
 source("script2.R", local=FALSE)
@@ -62,168 +68,14 @@ path_TBM_KO <- "/Volumes/addition_storage/U22cKO1_TBM/filtered_feature_bc_matrix
 
 # create folder into which all plots will be saved
 path_to_working_directory <- getwd()
-folder_with_plots <- "plots_generated_by_Alessandro"
+folder_with_plots <- "test_plots_20220308"
 dir.create(paste(path_to_working_directory, folder_with_plots, sep="/"), showWarnings = FALSE)
 
+# analysis of total bone marrow
+source("analysis_of_total_bone_marrow.R", local=FALSE)
 
-# analysis of total bone marrow ####
-set.seed(1)
-# load and process total bone marrow of WT
-TBM_WT <- load_process_data(path=path_TBM_WT, nFeature_lower_threshold=700, nFeature_upper_threshold=10000, percent.mt_threshold=7, including_normalization=TRUE)
-TBM_WT <- cluster_cells(object=TBM_WT, reduction = "pca", ndims=30, knn=30, create_neighbor_object=FALSE, resolution=0.8)
-TBM_WT <- remove_doublets(object=TBM_WT, last_PC=30, ndims=30)
-
-# load and process total bone marrow of KO
-TBM_KO <- load_process_data(path=path_TBM_KO, nFeature_lower_threshold=700, nFeature_upper_threshold=10000, percent.mt_threshold=7, including_normalization=TRUE)
-TBM_KO <- cluster_cells(object=TBM_KO, reduction = "pca", ndims=30, knn=30, create_neighbor_object=FALSE, resolution=0.8)
-TBM_KO <- remove_doublets(object=TBM_KO, last_PC=30, ndims=30)
-
-# combine WT and KO cells into one object
-TBM_combined <- merge_conditions(object_WT=TBM_WT, object_KO=TBM_KO)
-
-# cluster cells
-TBM_combined <- cluster_cells(object=TBM_combined, reduction = "pca", ndims=30, knn=30, create_neighbor_object=FALSE, resolution=0.8)
-
-# compute umap
-TBM_combined <- Seurat::RunUMAP(TBM_combined, dims = 1:30, return.model = TRUE, n.neighbors = 28, min.dist = 0.45, metric="cosine")#30, 0.3 # 28, 0.45
-DimPlot(TBM_combined, reduction = "umap", label = TRUE)+ NoLegend()
-
-# annotate cells by SingleR
-TBM_combined <- annotate_by_SingleR(object_to_annotate=TBM_combined, path_helper_functions="annotation_helper_functions.R")
-
-# adjust annotations to cluster boundaries and pool some populations
-TBM_combined <- get_coarse_annotation(object_to_annotate=TBM_combined)
-
-#saveRDS(TBM_combined, file = "TBM_combined_object_for_paper_20211001.rds")
-#TBM_combined <- readRDS(file = "TBM_combined_object_for_paper_20211001.rds")
-
-# create Fig1C
-plot_Fig1C(TBM_combined, path_for_plot=folder_with_plots)
-
-# compute log2(fold-changes) of cell type frequencies between conditions with 95% confidence intervalls; write pdf
-quantify_compositional_changes_of_cell_types(TBM_combined, path_for_plot=paste(folder_with_plots, "changes_of_cell_type_frequencies.pdf", sep="/"))
-
-# clean work space
-elements_to_remove <- setdiff(ls(), lsf.str())
-elements_to_remove <- c(elements_to_remove, "elements_to_remove")
-elements_to_remove <- elements_to_remove[which(!(elements_to_remove %in% c("path_HSC_KO", "path_HSC_WT", "path_Linminus_KO", 
-                                                                         "path_Linminus_WT", "path_LSK_KO", "path_LSK_WT",
-                                                                         "path_MPP_KO", "path_MPP_WT", "path_ST_KO", 
-                                                                         "path_ST_WT", "path_TBM_KO", "path_TBM_WT",
-                                                                         "folder_with_plots")))]
-rm(list = elements_to_remove)
-gc()
-
-
-
-
-
-
-# comparison of number of Linminus-cells in Sca-1+/Kit+ gate with myeloid/erythroid/megakaryocyte signature between conditions ####
-set.seed(1)
-Linminus_WT <- load_process_data(path=path_Linminus_WT, nFeature_lower_threshold=700, nFeature_upper_threshold=7000, percent.mt_threshold=6, including_normalization=FALSE)
-Linminus_KO <- load_process_data(path=path_Linminus_KO, nFeature_lower_threshold=700, nFeature_upper_threshold=7000, percent.mt_threshold=6, including_normalization=FALSE)
-LSK_WT <- load_process_data(path=path_LSK_WT, nFeature_lower_threshold=1500, nFeature_upper_threshold=8000, percent.mt_threshold=7, including_normalization=FALSE)
-LSK_KO <- load_process_data(path=path_LSK_KO, nFeature_lower_threshold=1500, nFeature_upper_threshold=8000, percent.mt_threshold=7, including_normalization=FALSE)
-
-# combine WT and KO cells into one object
-Linminus_combined <- merge_conditions(object_WT=Linminus_WT, object_KO=Linminus_KO)
-rm(Linminus_WT)
-rm(Linminus_KO)
-LSK_combined <- merge_conditions(object_WT=LSK_WT, object_KO=LSK_KO)
-rm(LSK_WT)
-rm(LSK_KO)
-
-Linminus_combined <- annotate_by_SingleR(object_to_annotate=Linminus_combined, path_helper_functions="annotation_helper_functions.R")
-
-LSK_combined <- annotate_by_SingleR(object_to_annotate=LSK_combined, path_helper_functions="annotation_helper_functions.R")
-
-Linminus_combined <- prepare_Linminus_for_diffusion_modeling(Linminus_combined=Linminus_combined)
-
-LSK_combined <- prepare_LSK_for_diffusion_modeling(LSK_combined=LSK_combined)
-
-LSK_Linminus_combined <- merge_LSK_Linminus_using_Linminus_features(LSK_combined=LSK_combined, Linminus_combined_core=Linminus_combined)
-
-Interesting_cells <- run_diffusion_analysis(Linminus_core_LSK=LSK_Linminus_combined)
-
-scatter_3d(Interesting_cells, dim.red.name = 'DiffusionMap', color.column="SingleR_labels", marker_size = 20, scene = '')
-
-visualize_samples_and_cell_types_on_diffusion_map(Interesting_cells=Interesting_cells, path_for_plot=paste(folder_with_plots, "samples_cell_types_on_dmap.pdf", sep="/"))
-
-list_with_annotation_results <- define_cluster_identities_on_dmap_for_slingshot_analysis(Interesting_cells=Interesting_cells)
-Interesting_cells <- list_with_annotation_results[["object_with_endpoints"]]
-
-# run slingshot
-Interesting_cells@int_colData@listData[["reducedDims"]]@listData[["DiffusionMap_subset"]] <- Interesting_cells@int_colData@listData[["reducedDims"]]@listData[["DiffusionMap"]][,1:3]
-Interesting_cells <- slingshot(Interesting_cells, clusterLabels = 'location', reducedDim = 'DiffusionMap_subset', start.clus="root_cells", end.clus=c("CFUEs", "GMPs", "CLPs", "Baso"))
-
-Interesting_cells <- annotate_cells_by_assigned_slingshot_trajectories_and_rename_pseudotimes(Interesting_cells)
-
-#saveRDS(Interesting_cells, file = "LSK_and_Linminus_DiffMap_Slingshot_20211012.rds")
-#Interesting_cells <- readRDS(file = "LSK_and_Linminus_DiffMap_Slingshot_20211012.rds")
-
-plot_dmap_with_slingshot_trajectories(Interesting_cells, color_cells_by="Lineage_assignment", path_for_plot=paste(folder_with_plots, "dmap_with_slingshot_trajectories.pdf", sep="/"))
-
-plot_dmap_with_slingshot_trajectories_LSK(Interesting_cells, color_cells_by="identity", path_for_plot=paste(folder_with_plots, "dmap_with_slingshot_trajectories_LSK.pdf", sep="/"))
-
-list_with_trajectories_and_their_medians_and_CIs_ordered_by_pseudotime <- run_condition_imbalance_analysis(Interesting_cells, sample_to_use="LSK", 
-                                                                                                           pseudo_time_trajectories_to_use=c("pseudotime_GMP", "pseudotime_CFUE"), 
-                                                                                                           size_of_local_neighborhoods=50, num_bootstrap_iter=1000, 
-                                                                                                           path_to_helper_functions="condition_imbalance_analysis_helper_functions.R", 
-                                                                                                           size_moving_window=0.05)
-
-#saveRDS(list_with_trajectories_and_their_medians_and_CIs_ordered_by_pseudotime, file = "condition_imbalance_results.rds")
-#list_with_trajectories_and_their_medians_and_CIs_ordered_by_pseudotime <- readRDS(file = "condition_imbalance_results.rds")
-
-df_confidence <- list_with_trajectories_and_their_medians_and_CIs_ordered_by_pseudotime[[1]]
-plot_condition_imbalance_analysis(df_confidence, x_label="pseudo-time along myeloid trajectory", y_label="proportion of KO-cells \n in cell-neighborhoods", path_for_plot=paste(folder_with_plots, "condition_imbalance_analysis_myeloid.pdf", sep="/"))
-df_confidence <- list_with_trajectories_and_their_medians_and_CIs_ordered_by_pseudotime[[2]]
-plot_condition_imbalance_analysis(df_confidence, x_label="pseudo-time along MEP trajectory", y_label="proportion of KO-cells \n in cell-neighborhoods", path_for_plot=paste(folder_with_plots, "condition_imbalance_analysis_MEP.pdf", sep="/"))
-
-# clean workspace
-elements_to_remove <- setdiff(ls(), lsf.str())
-elements_to_remove <- c(elements_to_remove, "elements_to_remove")
-elements_to_remove <- elements_to_remove[which(!(elements_to_remove %in% c("path_HSC_KO", "path_HSC_WT", "path_Linminus_KO", 
-                                                                           "path_Linminus_WT", "path_LSK_KO", "path_LSK_WT",
-                                                                           "path_MPP_KO", "path_MPP_WT", "path_ST_KO", 
-                                                                           "path_ST_WT", "path_TBM_KO", "path_TBM_WT",
-                                                                           "folder_with_plots", "Interesting_cells")))]
-rm(list = elements_to_remove)
-gc()
-
-
-# testing performance of imbalance analysis by creating object that contains two copies of each true cell: One annotated as KO and the other as WT ####
-KO_test_cells <- Interesting_cells[, which(Interesting_cells$identity == "KO")]
-WT_test_cells <- KO_test_cells
-WT_test_cells$identity <- rep("WT", ncol(WT_test_cells))
-test_object <- cbind(WT_test_cells, KO_test_cells)
-colnames(test_object) <- paste(test_object$identity, colnames(test_object), sep="_")
-list_with_trajectories_and_their_medians_and_CIs_ordered_by_pseudotime_test <- run_condition_imbalance_analysis(Interesting_cells=test_object, sample_to_use="LSK", 
-                                                                                                           pseudo_time_trajectories_to_use=c("pseudotime_GMP", "pseudotime_CFUE"), 
-                                                                                                           size_of_local_neighborhoods=50, num_bootstrap_iter=10, 
-                                                                                                           path_to_helper_functions="condition_imbalance_analysis_helper_functions.R", 
-                                                                                                           size_moving_window=0.05)
-
-df_confidence <- list_with_trajectories_and_their_medians_and_CIs_ordered_by_pseudotime_test[[1]]
-plot_condition_imbalance_analysis(df_confidence, x_label="pseudo-time along myeloid trajectory", y_label="|KO| / (|KO|+|WT|)", path_for_plot=paste(folder_with_plots, "condition_imbalance_analysis_myeloid_test.pdf", sep="/"))
-df_confidence <- list_with_trajectories_and_their_medians_and_CIs_ordered_by_pseudotime_test[[2]]
-plot_condition_imbalance_analysis(df_confidence, x_label="pseudo-time along MEP trajectory", y_label="|KO| / (|KO|+|WT|)", path_for_plot=paste(folder_with_plots, "condition_imbalance_analysis_MEP_test.pdf", sep="/"))
-
-# clean workspace
-elements_to_remove <- setdiff(ls(), lsf.str())
-elements_to_remove <- c(elements_to_remove, "elements_to_remove")
-elements_to_remove <- elements_to_remove[which(!(elements_to_remove %in% c("path_HSC_KO", "path_HSC_WT", "path_Linminus_KO", 
-                                                                           "path_Linminus_WT", "path_LSK_KO", "path_LSK_WT",
-                                                                           "path_MPP_KO", "path_MPP_WT", "path_ST_KO", 
-                                                                           "path_ST_WT", "path_TBM_KO", "path_TBM_WT",
-                                                                           "folder_with_plots")))]
-rm(list = elements_to_remove)
-gc()
-
-
-
-
-
+# analysis of MPPs and HSCs
+source("analysis_of_MPPs_and_HSCs.R", local=FALSE)
 
 # quantify proportion of cycling cells in LT-HSC population ####
 LTHSC_WT <- load_process_data(path=path_HSC_WT, nFeature_lower_threshold=2500, nFeature_upper_threshold=10000, percent.mt_threshold=6, including_normalization=TRUE)

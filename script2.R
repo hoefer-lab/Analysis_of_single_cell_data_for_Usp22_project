@@ -937,19 +937,23 @@ create_usp22_panel_for_all_stem_cell_populations <- function(HSC_WT, ST_WT, MPP_
   
 }
 
-convertHumanGeneList <- function(x){
-  require("biomaRt")
-  human = useMart("ensembl", dataset = "hsapiens_gene_ensembl")
-  mouse = useMart("ensembl", dataset = "mmusculus_gene_ensembl")
-  
-  genes = getLDS(attributes = c("hgnc_symbol"), filters = "hgnc_symbol", values = x , mart = human, attributesL = c("mgi_symbol"), martL = mouse, uniqueRows=T)
-  
-  humanx <- unique(genes[, 2])
-  
-  # Print the first 6 genes found to the screen
-  print(head(humanx))
-  return(humanx)
-}
+# convertHumanGeneList <- function(x){
+#   require("biomaRt")
+#   human = useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+#   mouse = useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+#   
+#   genes = getLDS(attributes = c("hgnc_symbol"), filters = "hgnc_symbol", values = x , mart = human, attributesL = c("mgi_symbol"), martL = mouse, uniqueRows=T)
+#   
+#   humanx <- unique(genes[, 2])
+#   
+#   # Print the first 6 genes found to the screen
+#   print(head(humanx))
+#   return(humanx)
+# }
+# g2m.genes <- convertHumanGeneList(cc.genes$g2m.genes)
+# s.genes <- convertHumanGeneList(cc.genes$s.genes)
+g2m.genes <- readRDS(file = "g2m.genes")
+s.genes <- readRDS(file = "s.genes")
 
 run_GSEA <- function(seurat_object, min.pct = 0.1, ont_category="BP", minGSSize = 10, maxGSSize = 800, pvalueCutoff = 0.05, showCategory=50){
   genes_for_GO_analysis <- FindMarkers(seurat_object, group.by = "condition", ident.1 = "KO", ident.2 = "WT", assay = "SCT",
@@ -1102,10 +1106,9 @@ plot_GSEA_heatmap_global <- function(processed_GSEA_results=processed_GSEA_resul
                      filename = paste(path_to_file, "global_clusters_core_genes_heat.pdf", sep="/"), width = 3, height = 9)
 }
 
-g2m.genes <- convertHumanGeneList(cc.genes$g2m.genes)
-s.genes <- convertHumanGeneList(cc.genes$s.genes)
 prepare_MPPs_for_FateID <- function(MPP_WT, MPP_KO, g2m.genes=g2m.genes, s.genes=s.genes){
   set.seed(1)
+  print(sample(5))
   DefaultAssay(MPP_WT) <- "SCT"
   MPP_WT <- CellCycleScoring(
     object = MPP_WT,
@@ -1116,6 +1119,7 @@ prepare_MPPs_for_FateID <- function(MPP_WT, MPP_KO, g2m.genes=g2m.genes, s.genes
   )
   
   set.seed(1)
+  print(sample(5))
   DefaultAssay(MPP_KO) <- "SCT"
   MPP_KO <- CellCycleScoring(
     object = MPP_KO,
@@ -1125,9 +1129,13 @@ prepare_MPPs_for_FateID <- function(MPP_WT, MPP_KO, g2m.genes=g2m.genes, s.genes
     seed=1
   )
   
+  set.seed(1)
+  print(sample(5))
   DefaultAssay(MPP_WT) <- "RNA"
   MPP_WT <- Seurat::SCTransform(MPP_WT, verbose = FALSE, variable.features.n = NULL, variable.features.rv.th = 1.3, vars.to.regress = c("S.Score", "G2M.Score"))
   
+  set.seed(1)
+  print(sample(5))
   DefaultAssay(MPP_KO) <- "RNA"
   MPP_KO <- Seurat::SCTransform(MPP_KO, verbose = FALSE, variable.features.n = NULL, variable.features.rv.th = 1.3, vars.to.regress = c("S.Score", "G2M.Score"))
   
@@ -1625,6 +1633,7 @@ correct_MPP_embedding_for_differential_ditribution_of_conditions <- function(MPP
 
 
 create_plots_showing_MPP_embedding <- function(MPP_combined.sce, path_to_plot_parameters="3d_scatter_parameters.rds", path_to_plots="plots_20220216"){
+  
   # sample WT and KO embedding to equal cell numbers and read plotting parameters
   number_of_cells_to_plot_per_condition <- min(c(length(which(MPP_combined.sce$condition=="WT")), length(which(MPP_combined.sce$condition=="KO"))))
   WT_cells_to_plot <- sample(which(MPP_combined.sce$condition=="WT"), size = number_of_cells_to_plot_per_condition, replace = FALSE)

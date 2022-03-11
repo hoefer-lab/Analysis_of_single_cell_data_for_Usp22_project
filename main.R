@@ -12,7 +12,7 @@ if (renv_installed==FALSE){
 }
 
 renv::init(project=NULL, bare = TRUE)
-renv::restore(lockfile = "reproducing.lock", prompt = FALSE)
+renv::restore(lockfile = "renv_20220310", prompt = FALSE)
 .rs.restartR()
 
 
@@ -72,7 +72,7 @@ folder_with_plots <- "test_plots_20220308"
 dir.create(paste(path_to_working_directory, folder_with_plots, sep="/"), showWarnings = FALSE)
 
 # analysis of total bone marrow
-source("analysis_of_total_bone_marrow.R", local=FALSE)
+#source("analysis_of_total_bone_marrow.R", local=FALSE)
 
 # analysis of MPPs and HSCs
 source("analysis_of_MPPs_and_HSCs.R", local=FALSE)

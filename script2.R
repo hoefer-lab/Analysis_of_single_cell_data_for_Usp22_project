@@ -1209,7 +1209,7 @@ compute_diffusion_map <- function(MPP_combined, common_features){
   # visualize initial diffusion map
   dmap_plot_unfiltered <- scatter_3d(MPP_combined.sce, dim.red.name = 'DiffusionMap', color.column="SingleR_labels", marker_size = 20, scene = '')
   
-  # remove outliers (some MEPs and PreCFUEs) and re-compute diffusion map
+  # remove extreme cells (some MEPs and PreCFUEs) and re-compute diffusion map
   cells_to_keep <- rownames(reducedDim(MPP_combined.sce, 'DiffusionMap'))[which(reducedDim(MPP_combined.sce, 'DiffusionMap')[,3]>(-0.1))]
   MPP_combined.sce <- MPP_combined.sce[,cells_to_keep]
   MPP_combined <- MPP_combined[,cells_to_keep]
@@ -1228,12 +1228,12 @@ assign_cells_to_branches_using_slingshot <- function(MPP_combined, MPP_combined.
   
   # run slingshot
   MPP_combined.sce@int_colData@listData[["reducedDims"]]@listData[["DiffusionMap_subset"]] <- MPP_combined.sce@int_colData@listData[["reducedDims"]]@listData[["DiffusionMap"]][,1:3]
-  MPP_combined.sce <- slingshot(MPP_combined.sce, clusterLabels = 'Cluster1', reducedDim = 'DiffusionMap_subset', start.clus=c("1"), end.clus=c("5", "4"), allow.breaks=TRUE)
+  MPP_combined.sce <- slingshot(MPP_combined.sce, clusterLabels = 'Cluster1', reducedDim = 'DiffusionMap_subset', start.clus=c("2"), end.clus=c("4", "3"), allow.breaks=TRUE)
   
   # add pseudo-time to meta data
   pseudotime_values_with_NAs <- slingPseudotime(MPP_combined.sce, na = TRUE)
-  MPP_combined.sce@colData@listData[["CLP_pseudotime_na"]] <- pseudotime_values_with_NAs[,"curve1"]
-  MPP_combined.sce@colData@listData[["GMP_pseudotime_na"]] <- pseudotime_values_with_NAs[,"curve2"]
+  MPP_combined.sce@colData@listData[["GMP_pseudotime_na"]] <- pseudotime_values_with_NAs[,"curve1"]
+  MPP_combined.sce@colData@listData[["CLP_pseudotime_na"]] <- pseudotime_values_with_NAs[,"curve2"]
   
   # get pseudo-time of most central HSC
   HSCs <- MPP_combined.sce[, which(MPP_combined.sce$SingleR_labels=="LTHSC")]
@@ -1658,7 +1658,7 @@ create_plots_showing_MPP_embedding <- function(MPP_combined.sce, path_to_plot_pa
   rgl.close()
   
   # plot KO cells
-  plotcol <- MPP_combined.sce_sampled[,which(MPP_combined.sce_sampled$condition=="WT")]$branches
+  plotcol <- MPP_combined.sce_sampled[,which(MPP_combined.sce_sampled$condition=="KO")]$branches
   plotcol[which(plotcol=="CLP")] <- "orange"
   plotcol[which(plotcol=="GMP")] <- "blue"
   plotcol[which(plotcol=="MEP")] <- "red"
@@ -1672,6 +1672,48 @@ create_plots_showing_MPP_embedding <- function(MPP_combined.sce, path_to_plot_pa
   image_write(img, path = paste(path_to_plots, "KO_diffusion_map.pdf", sep="/"), format = "pdf")
   rgl.close()
 }
+
+create_plots_showing_MPP_embedding_with_curves <- function(MPP_combined.sce, path_to_plot_parameters="3d_scatter_parameters.rds", path_to_plots="plots_20220216"){
+  
+  # sample WT and KO embedding to equal cell numbers and read plotting parameters
+  number_of_cells_to_plot_per_condition <- min(c(length(which(MPP_combined.sce$condition=="WT")), length(which(MPP_combined.sce$condition=="KO"))))
+  WT_cells_to_plot <- sample(which(MPP_combined.sce$condition=="WT"), size = number_of_cells_to_plot_per_condition, replace = FALSE)
+  KO_cells_to_plot <- sample(which(MPP_combined.sce$condition=="KO"), size = number_of_cells_to_plot_per_condition, replace = FALSE)
+  MPP_combined.sce_sampled <- MPP_combined.sce[, c(WT_cells_to_plot, KO_cells_to_plot)]
+  sds <- SlingshotDataSet(MPP_combined.sce)
+  save <- readRDS(file=path_to_plot_parameters)
+  
+  # plot WT cells
+  plotcol <- MPP_combined.sce_sampled[,which(MPP_combined.sce_sampled$condition=="WT")]$branches
+  plotcol[which(plotcol=="CLP")] <- "orange"
+  plotcol[which(plotcol=="GMP")] <- "blue"
+  plotcol[which(plotcol=="MEP")] <- "red"
+  plotcol[which(plotcol=="undefined")] <- "grey"
+  plot3d(reducedDims(MPP_combined.sce_sampled[,which(MPP_combined.sce_sampled$condition=="WT")])$DiffusionMap_subset, col = plotcol, size = 4, alpha=0.5)
+  plot3d.SlingshotDataSet(sds, lwd = 2, add = TRUE)
+  par3d(save)
+  snapshot3d(filename = paste(path_to_plots, "WT_diffusion_map.png", sep="/"), 
+             fmt = "png", width = 5000, height = 5000)
+  img <- image_read(paste(path_to_plots, "WT_diffusion_map.png", sep="/"))
+  image_write(img, path = paste(path_to_plots, "WT_diffusion_map.pdf", sep="/"), format = "pdf")
+  rgl.close()
+  
+  # plot KO cells
+  plotcol <- MPP_combined.sce_sampled[,which(MPP_combined.sce_sampled$condition=="KO")]$branches
+  plotcol[which(plotcol=="CLP")] <- "orange"
+  plotcol[which(plotcol=="GMP")] <- "blue"
+  plotcol[which(plotcol=="MEP")] <- "red"
+  plotcol[which(plotcol=="undefined")] <- "grey"
+  plot3d(reducedDims(MPP_combined.sce_sampled[,which(MPP_combined.sce_sampled$condition=="KO")])$DiffusionMap_subset, col = plotcol, size = 4, alpha=0.5)
+  plot3d.SlingshotDataSet(sds, lwd = 2, add = TRUE)
+  par3d(save)
+  snapshot3d(filename = paste(path_to_plots, "KO_diffusion_map.png", sep="/"), 
+             fmt = "png", width = 5000, height = 5000)
+  img <- image_read(paste(path_to_plots, "KO_diffusion_map.png", sep="/"))
+  image_write(img, path = paste(path_to_plots, "KO_diffusion_map.pdf", sep="/"), format = "pdf")
+  rgl.close()
+}
+
 
 plot_differential_expression_of_signatures <- function(signature_genes=GMP_signature, MPP_combined.corrected_cell_numbers=MPP_combined.corrected_cell_numbers,
                                                        plot_title="Differential expression\nof genes specific\nfor GMP-biased MPPs",

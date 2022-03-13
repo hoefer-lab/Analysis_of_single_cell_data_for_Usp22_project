@@ -1073,7 +1073,9 @@ cut_tree_and_get_list_of_clustered_GO_terms <- function(hclust_ward, number_of_c
   return(list_of_clustered_immune_GO_terms)
 }
 
-plot_GSEA_heatmap_global <- function(processed_GSEA_results=processed_GSEA_results, log2FC_threshold=1.2, path_to_file="plots_20220216"){
+plot_GSEA_heatmap_global <- function(processed_GSEA_results=processed_GSEA_results, log2FC_threshold=1.2, path_to_file="plots_20220216", sample_name = "LTs", figure_height=9, rowlabel_size=6, collabel_size=8){
+  
+  basic_file_name <- paste(path_to_file, sample_name, sep="/")
   
   core_genes_for_each_GO_term <- processed_GSEA_results[["core_genes_for_each_GO_term"]]
   GO_term_groups_cut_global <- processed_GSEA_results[["GO_term_groups_cut_global"]]
@@ -1097,13 +1099,25 @@ plot_GSEA_heatmap_global <- function(processed_GSEA_results=processed_GSEA_resul
     global_matrix[which(!(rownames(global_matrix) %in% current_core_genes)), index] <- NA
   }
   
+  mean_values_of_columns <- apply(global_matrix, 2, FUN=function(x)mean(x, na.rm=TRUE))
+  genes_per_column <- apply(global_matrix, 2, FUN=function(x)(length(which(!is.na(x)))))
+  columns_with_negative_values <- which(mean_values_of_columns<0)
+  negative_columns_gene_numbers <- genes_per_column[columns_with_negative_values]
+  negative_sorted <- sort(negative_columns_gene_numbers, decreasing = FALSE)
+  
+  columns_with_positive_values <- which(mean_values_of_columns>0)
+  positive_columns_gene_numbers <- genes_per_column[columns_with_positive_values]
+  positive_sorted <- sort(positive_columns_gene_numbers, decreasing = TRUE)
+  
+  global_matrix <- global_matrix[, names(c(positive_sorted, negative_sorted))]
+  
   color <- colorRampPalette(c("blue", "white", "red"))(100)
   myBreaks <- c(seq(min(global_matrix, na.rm = TRUE), 0, length.out=ceiling(100/2) + 1), 
                 seq(max(global_matrix, na.rm = TRUE)/100, max(global_matrix, na.rm = TRUE), length.out=floor(100/2)))
   pheatmap::pheatmap(global_matrix, na_col = "grey", color = color, breaks = myBreaks, cluster_cols = FALSE, cluster_rows = FALSE, 
-                     angle_col=270, fontsize_row=8, fontsize_col=8, fontsize=8, 
-                     main = "Log2FCs of genes with strongest contribution \n to enrichemnt scores \n of GO clusters; \n Colored fields mark genes that are \n included in a column's GO gene sets", 
-                     filename = paste(path_to_file, "global_clusters_core_genes_heat.pdf", sep="/"), width = 3, height = 9)
+                     angle_col=270, fontsize_row=rowlabel_size, fontsize_col=collabel_size, fontsize=8, 
+                     main = "", 
+                     filename = paste(basic_file_name, "global_clusters_core_genes_heat.pdf", sep="_"), width = 3, height = figure_height)
 }
 
 prepare_MPPs_for_FateID <- function(MPP_WT, MPP_KO, g2m.genes=g2m.genes, s.genes=s.genes){
@@ -1367,7 +1381,7 @@ compute_per_cell_scores_of_GMP_LMPP_priming_and_plot_distribution <- function(ob
     fill.by = "feature",
     flip = FALSE
   )[[1]]
-  Vln_Plot_GMP_sig_prep <- Vln_Plot_GMP_sig + ggtitle("") + theme(axis.text.x = element_text(angle = 270, size=8), axis.title.x = element_blank(), plot.title = element_text(size=10)) +
+  Vln_Plot_MPPs_GMPsignature_prep <- Vln_Plot_MPPs_GMPsignature + ggtitle("") + theme(axis.text.x = element_text(angle = 270, size=8), axis.title.x = element_blank(), plot.title = element_text(size=10)) +
     stat_compare_means(aes(group = split), method="wilcox.test", paired=FALSE, label = "p.signif", hide.ns=FALSE)
   
   
@@ -1394,7 +1408,7 @@ compute_per_cell_scores_of_GMP_LMPP_priming_and_plot_distribution <- function(ob
     flip = FALSE
   )[[1]]
   
-  Vln_Plot_LMPP_sig_prep <- Vln_Plot_LMPP_sig + ggtitle("") + theme(axis.text.x = element_text(angle = 270, size=8), axis.title.x = element_blank(), plot.title = element_text(size=10)) +
+  Vln_Plot_MPPs_LMPPsignature_prep <- Vln_Plot_MPPs_LMPPsignature + ggtitle("") + theme(axis.text.x = element_text(angle = 270, size=8), axis.title.x = element_blank(), plot.title = element_text(size=10)) +
     stat_compare_means(aes(group = split), method="wilcox.test", paired=FALSE, label = "p.signif", hide.ns=FALSE)
   
   
@@ -1421,7 +1435,7 @@ compute_per_cell_scores_of_GMP_LMPP_priming_and_plot_distribution <- function(ob
     flip = FALSE
   )[[1]]
   
-  Vln_Plot_GMP_sig_HSC_prep <- Vln_Plot_GMP_sig_HSC + ggtitle("") + theme(axis.text.x = element_text(angle = 270, size=8), axis.title.x = element_blank(), plot.title = element_text(size=10)) + 
+  Vln_Plot_HSCs_GMPsignature_prep <- Vln_Plot_HSCs_GMPsignature + ggtitle("") + theme(axis.text.x = element_text(angle = 270, size=8), axis.title.x = element_blank(), plot.title = element_text(size=10)) + 
     stat_compare_means(aes(group = split), method="wilcox.test", paired=FALSE, label = "p.signif", hide.ns=FALSE)
   
   
@@ -1448,12 +1462,12 @@ compute_per_cell_scores_of_GMP_LMPP_priming_and_plot_distribution <- function(ob
     flip = FALSE
   )[[1]]
   
-  Vln_Plot_LMPP_sig_HSC_prep <- Vln_Plot_LMPP_sig_HSC + ggtitle("") + theme(axis.text.x = element_text(angle = 270, size=8), axis.title.x = element_blank(), plot.title = element_text(size=10)) +
+  Vln_Plot_HSCs_LMPPsignature_prep <- Vln_Plot_HSCs_LMPPsignature + ggtitle("") + theme(axis.text.x = element_text(angle = 270, size=8), axis.title.x = element_blank(), plot.title = element_text(size=10)) +
     stat_compare_means(aes(group = split), method="wilcox.test", paired=FALSE, label = "p.signif", hide.ns=FALSE)
   
   # group plots by signature Vln_Plot_MPPs_GMPsignature, Vln_Plot_MPPs_LMPPsignature, Vln_Plot_HSCs_GMPsignature, Vln_Plot_HSCs_LMPPsignature
-  combined_plot_GMP <- Vln_Plot_MPPs_GMPsignature + Vln_Plot_HSCs_GMPsignature + plot_layout(guides = 'collect', ncol = 1, nrow = 2)
-  combined_plot_LMPP <- Vln_Plot_MPPs_LMPPsignature + Vln_Plot_HSCs_LMPPsignature + plot_layout(guides = 'collect', ncol = 1, nrow = 2)
+  combined_plot_GMP <- Vln_Plot_MPPs_GMPsignature_prep + Vln_Plot_HSCs_GMPsignature_prep + plot_layout(guides = 'collect', ncol = 1, nrow = 2)
+  combined_plot_LMPP <- Vln_Plot_MPPs_LMPPsignature_prep + Vln_Plot_HSCs_LMPPsignature_prep + plot_layout(guides = 'collect', ncol = 1, nrow = 2)
   
   ggsave(
     paste(path_for_plot, "Vln_Plot_panel_GMP.pdf", sep=""),
@@ -1483,13 +1497,14 @@ compute_per_cell_scores_of_GMP_LMPP_priming_and_plot_distribution <- function(ob
     bg = NULL
   )
   
+  return(list(GMP_signature=GMP_signature, CLP_signature=CLP_signature))
 }
 
 assign_cells_to_cell_cycle_phases_based_on_gene_lists <- function(object_to_annotate=MPP_combined,
                                                                   G2M_thres_in_neighborhood=1,
-                                                                  neighborhood_size=200){
-  g2m.genes <- convertHumanGeneList(cc.genes$g2m.genes)
-  s.genes <- convertHumanGeneList(cc.genes$s.genes)
+                                                                  neighborhood_size=200,
+                                                                  g2m.genes=g2m.genes,
+                                                                  s.genes=s.genes){
   if ((is.null(g2m.genes)) | (is.null(s.genes))){
     stop("Lists with cell cycle genes could not be loaded!")
   }
@@ -1513,12 +1528,10 @@ assign_cells_to_cell_cycle_phases_based_on_gene_lists <- function(object_to_anno
   new_G1S_members <- c()
   for (index in (1:nrow(neighbor_matrix_G1S))){
     current_row <- neighbor_matrix_G1S[index,]
-    print(length(which(current_row %in% G2M_indices)))
     if (length(which(current_row %in% G2M_indices)) < G2M_thres_in_neighborhood){
       number_of_cells_in_G1 <- length(which(current_row %in% G1_indices))
       number_of_cells_in_S <- length(which(current_row %in% S_indices))
       proportion_of_smaller_fraction <- min(c(number_of_cells_in_G1, number_of_cells_in_S)) / length(current_row)
-      print(proportion_of_smaller_fraction)
       if (proportion_of_smaller_fraction > 0.05){
         new_G1S_members <- append(new_G1S_members, current_row[1])
       }
@@ -1730,23 +1743,23 @@ plot_differential_expression_of_signatures <- function(signature_genes=GMP_signa
       current_WT_values <- values_WT[current_gene,]
       current_KO_values <- values_KO[current_gene,]
       p_value <- wilcox.test(current_WT_values, current_KO_values)$p.value
-      if (is.numeric(p_value)==TRUE){
+      if ((is.numeric(p_value)==TRUE) & (!is.nan(p_value))){
         if (p_value<0.05){
           matrix_deg_GMPsignature[current_gene, current_cluster] <- log2((mean(current_KO_values)+1)/(mean(current_WT_values)+1))
         } else {
-          matrix_deg_GMPsignature[current_gene, current_cluster] <- 0
+          matrix_deg_GMPsignature[current_gene, current_cluster] <- NA
         }
       } else {
-        matrix_deg_GMPsignature[current_gene, current_cluster] <- 0
+        matrix_deg_GMPsignature[current_gene, current_cluster] <- NA
       }
     }
   }
   colnames(matrix_deg_GMPsignature) <- c("unbiased MPPs", "LMPPs", "GMP-biased MPPs", "MEP-biased MPPs")
   
   color <- colorRampPalette(c("blue", "white", "red"))(100)
-  myBreaks <- c(seq(min(matrix_deg_GMPsignature), 0, length.out=ceiling(100/2) + 1), 
-                seq(max(matrix_deg_GMPsignature)/100, max(matrix_deg_GMPsignature), length.out=floor(100/2)))
-  pheatmap::pheatmap(matrix_deg_GMPsignature, color = color, breaks = myBreaks, cluster_rows=FALSE, cluster_cols=FALSE,
+  myBreaks <- c(seq(min(matrix_deg_GMPsignature, na.rm = TRUE), 0, length.out=ceiling(100/2) + 1), 
+                seq(max(matrix_deg_GMPsignature, na.rm = TRUE)/100, max(matrix_deg_GMPsignature, na.rm = TRUE), length.out=floor(100/2)))
+  pheatmap::pheatmap(matrix_deg_GMPsignature, na_col = "grey", color = color, breaks = myBreaks, cluster_rows=FALSE, cluster_cols=FALSE,
                      angle_col=270, fontsize_row=8, fontsize_col=8, fontsize=8,
                      main = plot_title,
                      filename = full_path, width = 3, height = 7)
@@ -1784,7 +1797,7 @@ run_GSEA_and_group_significant_GO_terms_by_overlap_of_gene_sets <- function(seur
               GSEA_results_sampled=GSEA_results_sampled))
 }
 
-plot_filtered_GO_network <- function(processed_GSEA_results=processed_GSEA_results, min_edge=0.3, path_to_plots="plots_20220216/GO_network.pdf"){
+plot_filtered_GO_network <- function(processed_GSEA_results=processed_GSEA_results, min_edge=0.3, path_to_plots="plots_20220216", sample_name="MPPs"){
   # create filtered gsea-results object
   retained_GO_terms <- unique(unlist(processed_GSEA_results[["GO_term_groups_cut_global"]]))
   results_global_filtered <- processed_GSEA_results[["results_readable"]]
@@ -1798,8 +1811,10 @@ plot_filtered_GO_network <- function(processed_GSEA_results=processed_GSEA_resul
                                     min_edge = min_edge,
                                     cex_label_category = 0.0)
   
+  basic_file_name <- paste(path_to_plots, sample_name, sep="/")
+  
   ggsave(
-    path_to_plots,
+    paste(basic_file_name, "GO_network_unlabeled.pdf", sep="_"),
     plot = grouped_GO_terms_plot,
     device = NULL,
     path = NULL,
@@ -1821,7 +1836,7 @@ plot_filtered_GO_network <- function(processed_GSEA_results=processed_GSEA_resul
                                             cex_label_category = 0.2)
   
   ggsave(
-    path_to_plots,
+    paste(basic_file_name, "GO_network_labeled.pdf", sep="_"),
     plot = grouped_GO_terms_plot_labeled,
     device = NULL,
     path = NULL,
@@ -1840,18 +1855,24 @@ visualize_subclustering_results <- function(number_of_clusters=suggested_number_
   list_of_clustered_immune_GO_terms <- cut_tree_and_get_list_of_clustered_GO_terms(hclust_ward=subclustering_results[["hclust_ward"]], number_of_clusters=number_of_clusters)
   results_readable_clust <- processed_GSEA_results[["results_readable"]]
   results_readable_clust@result <- results_readable_clust@result[which(results_readable_clust@result$Description %in% unlist(list_of_clustered_immune_GO_terms)),]
-  clusterIDs <- c()
-  for(index in (1:length(list_of_clustered_immune_GO_terms))){
-    clusterIDs <- append(clusterIDs, rep(index, length(list_of_clustered_immune_GO_terms[[index]])))
+  
+  GO_term_vector <- c()
+  Cluster_index_vector <- c()
+  for (index in (1:length(list_of_clustered_immune_GO_terms))){
+    GO_term_vector <- append(GO_term_vector, list_of_clustered_immune_GO_terms[[index]])
+    Cluster_index_vector <- append(Cluster_index_vector, rep(index, length(list_of_clustered_immune_GO_terms[[index]])))
   }
-  results_readable_clust@result[["GO_subcluster"]] <- clusterIDs
-  grouped_GO_terms_plot <- emapplot(results_global_filtered, showCategory = length(retained_GO_terms),
+  names(Cluster_index_vector) <- GO_term_vector
+  results_readable_clust@result[["GO_subcluster"]] <- Cluster_index_vector[results_readable_clust@result$Description]
+  
+  
+  grouped_GO_terms_plot <- emapplot(results_readable_clust, showCategory = nrow(results_readable_clust@result),
                                     color = "GO_subcluster",
                                     layout = "nicely",
                                     cex_category = 0.2,
                                     cex_line = 0.2,
                                     min_edge = min_edge,
-                                    cex_label_category = 0.2)
+                                    cex_label_category = 0.4)
   return(list(grouped_GO_terms_plot=grouped_GO_terms_plot, list_of_clustered_immune_GO_terms=list_of_clustered_immune_GO_terms))
 }
 
@@ -1859,7 +1880,7 @@ plot_GSEA_heatmap_subcluster <- function(processed_GSEA_results=processed_GSEA_r
                                          list_of_clustered_immune_GO_terms=subclusters_and_visualization[["list_of_clustered_immune_GO_terms"]], 
                                          names_of_subclusters=names_of_subclusters, mother_cluster="immune processes", log2FC_threshold=1.2, 
                                          number_of_clusters=suggested_number_of_clusters,
-                                         path_to_plot="plots_20220216/GO_heatmap.pdf"){
+                                         path_to_plot="plots_20220216"){
   
   core_genes_for_each_GO_term <- processed_GSEA_results[["core_genes_for_each_GO_term"]]
   GO_term_groups_cut_global <- processed_GSEA_results[["GO_term_groups_cut_global"]]
@@ -1882,12 +1903,24 @@ plot_GSEA_heatmap_subcluster <- function(processed_GSEA_results=processed_GSEA_r
     immune_matrix[which(!(rownames(immune_matrix) %in% current_core_genes)), index] <- NA
   }
   
+#  mean_values_of_columns <- apply(immune_matrix, 2, FUN=function(x)mean(x, na.rm=TRUE))
+  genes_per_column <- apply(immune_matrix, 2, FUN=function(x)(length(which(!is.na(x)))))
+#  columns_with_negative_values <- which(mean_values_of_columns<0)
+#  negative_columns_gene_numbers <- genes_per_column[columns_with_negative_values]
+#  negative_sorted <- sort(negative_columns_gene_numbers, decreasing = FALSE)
+  
+#  columns_with_positive_values <- which(mean_values_of_columns>0)
+#  positive_columns_gene_numbers <- genes_per_column[columns_with_positive_values]
+  genes_per_column_sorted <- sort(genes_per_column, decreasing = TRUE)
+  
+  immune_matrix <- immune_matrix[, names(genes_per_column_sorted)]
+  
   color <- colorRampPalette(c("white", "red"))(100)
   myBreaks <- seq(0, max(immune_matrix, na.rm = TRUE), length.out=100)
   pheatmap::pheatmap(immune_matrix, na_col = "grey", color = color, breaks = myBreaks, cluster_cols = FALSE, cluster_rows = FALSE, 
-                     angle_col=270, fontsize_row=8, fontsize_col=8, fontsize=8, 
-                     main = "Log2FCs of genes with strongest contribution \n to enrichemnt scores \n of GO clusters; \n Colored fields mark genes that are \n included in a column's GO gene sets", 
-                     filename = path_to_plot, width = 2, height = 7)
+                     angle_col=270, fontsize_row=6, fontsize_col=8, fontsize=8, 
+                     main = "", 
+                     filename = paste(path_to_plot, "GO_heatmap_immune.pdf", sep="/"), width = 2, height = 7)
   
 }
 

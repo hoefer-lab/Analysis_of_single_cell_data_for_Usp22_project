@@ -68,90 +68,12 @@ path_TBM_KO <- "/Volumes/addition_storage/U22cKO1_TBM/filtered_feature_bc_matrix
 
 # create folder into which all plots will be saved
 path_to_working_directory <- getwd()
-folder_with_plots <- "test_plots_20220308"
+folder_with_plots <- "test_plots_20220313"
 dir.create(paste(path_to_working_directory, folder_with_plots, sep="/"), showWarnings = FALSE)
 
 # analysis of total bone marrow
-#source("analysis_of_total_bone_marrow.R", local=FALSE)
+source("analysis_of_total_bone_marrow.R", local=FALSE)
 
 # analysis of MPPs and HSCs
 source("analysis_of_MPPs_and_HSCs.R", local=FALSE)
 
-# quantify proportion of cycling cells in LT-HSC population ####
-LTHSC_WT <- load_process_data(path=path_HSC_WT, nFeature_lower_threshold=2500, nFeature_upper_threshold=10000, percent.mt_threshold=6, including_normalization=TRUE)
-LTHSC_KO <- load_process_data(path=path_HSC_KO, nFeature_lower_threshold=2500, nFeature_upper_threshold=10000, percent.mt_threshold=6, including_normalization=TRUE)
-
-LTHSC_WT <- cluster_cells(object=LTHSC_WT, reduction = "pca", ndims=15, knn=40, create_neighbor_object=FALSE, resolution=0.2)
-LTHSC_WT <- Seurat::RunUMAP(LTHSC_WT, dims = 1:15, return.model = TRUE, n.neighbors = 25, min.dist = 0.7, metric="cosine")#25 0.7
-DimPlot(LTHSC_WT, reduction = "umap")
-
-# compute top 10 markers of each cluster and visualize those on dotplot
-visualize_top_marker_genes_of_clusters(object_with_clusters=LTHSC_WT, path_for_plot=paste(folder_with_plots, "markers_HSCs_dotplot.pdf", sep="/"), number_of_top_markers_per_cluster=10, p_val_ad_thres=0.05, assay="SCT", slot="data", test.use = "wilcox")
-
-# the dotplot shows that almost all top markers of cluster2 are associated with cell cycle, whereas most of those genes are completely absent in the other clusters 
-LTHSC_WT@meta.data[["cell_cycle"]] <- as.character(LTHSC_WT$seurat_clusters)
-LTHSC_WT$cell_cycle[which(LTHSC_WT$cell_cycle == "2")] <- "cycling"
-LTHSC_WT$cell_cycle[which(LTHSC_WT$cell_cycle != "cycling")] <- "non-cycling"
-
-# The principal component transformation learned on the wild-type cells is applied to the knock-out LT-HSCs;
-# In this way the datasets are aligned and mutual neighbors are identified to allow transfer of cell annotations between the datasets
-# (see https://github.com/satijalab/seurat/blob/master/vignettes/integration_mapping.Rmd)
-LTHSC_KO <- map_sample(ref_object=LTHSC_WT, query_object=LTHSC_KO, ndims=15, reference_reduction="pca", normalization_method="SCT", label_to_transfer="cell_cycle", reduction_model="umap")
-
-# inspect cycling and non-cycling cell populations on umap
-DimPlot(LTHSC_WT, reduction = "umap", group.by = "cell_cycle")
-DimPlot(LTHSC_KO, reduction = "ref.umap", group.by = "predicted.celltype")
-plot_umaps_cell_cycle(WT=LTHSC_WT, KO=LTHSC_KO, path_for_plot=paste(folder_with_plots, "cell_cycle_umaps.pdf", sep="/"))
-
-# inspect signature of cyclins, Mki67 and Top2a on heatmap
-heat_maps_with_cyclins <- cell_cycle(object_WT=LTHSC_WT, object_KO_with_ref_labels=LTHSC_KO, path_for_plot=folder_with_plots)
-WT_heatmap <- heat_maps_with_cyclins[[1]]
-KO_heatmap <- heat_maps_with_cyclins[[2]]
-WT_heatmap_raw_counts <- heat_maps_with_cyclins[[3]]
-KO_heatmap_raw_counts <- heat_maps_with_cyclins[[4]]
-
-# function that quantifies cells in a cluster and compares cell frequencies across conditions
-quantify_cell_frequencies_by_cluster(object_WT=LTHSC_WT, object_KO_with_ref_labels=LTHSC_KO, clusters_with_cycling_cells=c("cycling"), path_for_plot=paste(folder_with_plots, "cell_cycle_barplot.pdf", sep="/"))
-
-# clean workspace
-elements_to_remove <- setdiff(ls(), lsf.str())
-elements_to_remove <- c(elements_to_remove, "elements_to_remove")
-elements_to_remove <- elements_to_remove[which(!(elements_to_remove %in% c("path_HSC_KO", "path_HSC_WT", "path_Linminus_KO", 
-                                                                           "path_Linminus_WT", "path_LSK_KO", "path_LSK_WT",
-                                                                           "path_MPP_KO", "path_MPP_WT", "path_ST_KO", 
-                                                                           "path_ST_WT", "path_TBM_KO", "path_TBM_WT",
-                                                                           "folder_with_plots")))]
-rm(list = elements_to_remove)
-gc()
-
-
-# visualize expression of Usp22 in LT-HSC, ST-HSC and MPP ####
-LTHSC_WT <- load_process_data(path=path_HSC_WT, nFeature_lower_threshold=2500, nFeature_upper_threshold=10000, percent.mt_threshold=6, including_normalization=TRUE)
-LTHSC_KO <- load_process_data(path=path_HSC_KO, nFeature_lower_threshold=2500, nFeature_upper_threshold=10000, percent.mt_threshold=6, including_normalization=TRUE)
-STHSC_WT <- load_process_data(path=path_ST_WT, nFeature_lower_threshold=2500, nFeature_upper_threshold=10000, percent.mt_threshold=6, including_normalization=TRUE)
-STHSC_KO <- load_process_data(path=path_ST_KO, nFeature_lower_threshold=2500, nFeature_upper_threshold=10000, percent.mt_threshold=6, including_normalization=TRUE)
-MPP_WT <- load_process_data(path=path_MPP_WT, nFeature_lower_threshold=2500, nFeature_upper_threshold=10000, percent.mt_threshold=6, including_normalization=TRUE)
-MPP_KO <- load_process_data(path=path_MPP_KO, nFeature_lower_threshold=2500, nFeature_upper_threshold=10000, percent.mt_threshold=6, including_normalization=TRUE)
-
-LTHSC_WT <- Seurat::RunUMAP(LTHSC_WT, dims = 1:15, return.model = TRUE, n.neighbors = 25, min.dist = 0.7, metric="cosine")#25 0.7
-STHSC_WT <- Seurat::RunUMAP(STHSC_WT, dims = 1:15, return.model = TRUE, n.neighbors = 30, min.dist = 0.5, metric="cosine")#25 0.7
-MPP_WT <- Seurat::RunUMAP(MPP_WT, dims = 1:15, return.model = TRUE, n.neighbors = 30, min.dist = 0.7, metric="cosine")#25 0.7
-
-# for each WT/KO pair: align KO-sample to WT-sample in PCA space and use the WT-umap-model to compute umaps of both conditions
-LTHSC_KO <- map_sample(ref_object=LTHSC_WT, query_object=LTHSC_KO, ndims=15, reference_reduction="pca", normalization_method="SCT", label_to_transfer=NULL, reduction_model="umap")
-STHSC_KO <- map_sample(ref_object=STHSC_WT, query_object=STHSC_KO, ndims=15, reference_reduction="pca", normalization_method="SCT", label_to_transfer=NULL, reduction_model="umap")
-MPP_KO <- map_sample(ref_object=MPP_WT, query_object=MPP_KO, ndims=15, reference_reduction="pca", normalization_method="SCT", label_to_transfer=NULL, reduction_model="umap")
-
-# visualize Usp22 expression
-create_usp22_panel_for_all_stem_cell_populations(HSC_WT=LTHSC_WT, ST_WT=STHSC_WT, MPP_WT=MPP_WT, HSC_KO=LTHSC_KO, ST_KO=STHSC_KO, MPP_KO=MPP_KO, path_for_plot=paste(folder_with_plots, "Usp22_expression_in_stem_cells.pdf", sep="/"))
-
-# clean workspace
-elements_to_remove <- setdiff(ls(), lsf.str())
-elements_to_remove <- c(elements_to_remove, "elements_to_remove")
-elements_to_remove <- elements_to_remove[which(!(elements_to_remove %in% c("path_HSC_KO", "path_HSC_WT", "path_Linminus_KO", 
-                                                                           "path_Linminus_WT", "path_LSK_KO", "path_LSK_WT",
-                                                                           "path_MPP_KO", "path_MPP_WT", "path_ST_KO", 
-                                                                           "path_ST_WT", "path_TBM_KO", "path_TBM_WT",
-                                                                           "folder_with_plots")))]
-rm(list = elements_to_remove)
-gc()

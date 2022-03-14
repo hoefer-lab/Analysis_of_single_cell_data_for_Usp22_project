@@ -1759,7 +1759,7 @@ correct_MPP_embedding_for_differential_ditribution_of_conditions <- function(MPP
   KO_indices <- which(MPP_combined$condition=="KO")
   nearest_KO_neighbors <- c()
   for (index in (1:nrow(neighbor_matrix))){
-    current_neighbors <- neighbor_matrix[index, numbers_of_direct_neighbors_to_consider + 1]
+    current_neighbors <- neighbor_matrix[index, (2 : (numbers_of_direct_neighbors_to_consider + 1))]
     nearest_KO_neighbors <- append(nearest_KO_neighbors, current_neighbors[which(current_neighbors %in% KO_indices)][1])
   }
   table_for_cell_selection <- data.frame(central_cell=c(1:ncol(MPP_combined)), neighbor=nearest_KO_neighbors)
@@ -1781,11 +1781,19 @@ correct_MPP_embedding_for_differential_ditribution_of_conditions <- function(MPP
   colnames(MPP_combined.sce.corrected_cell_numbers) <- paste(colnames(MPP_combined.sce.corrected_cell_numbers), as.character(cell_specifications), sep="_")
   MPP_combined.corrected_cell_numbers <- RenameCells(MPP_combined.corrected_cell_numbers, new.names = paste(colnames(MPP_combined.corrected_cell_numbers), as.character(cell_specifications), sep="_"))
   scatterplot_sampled_object <- scatter_3d(MPP_combined.sce.corrected_cell_numbers, dim.red.name = 'DiffusionMap', color.column="condition", marker_size = 20, scene = '')
+  
+  # calculate how often individual KO cells were sampled:
+  max_sampling_number <- max(table(table_for_cell_selection[,"neighbor"]))
+  percentage_of_KO_cells_sampled_once <- length(which(table(table_for_cell_selection[,"neighbor"])==1)) / length(table(table_for_cell_selection[,"neighbor"]))
+  percentage_of_KO_cells_sampled_twice <- length(which(table(table_for_cell_selection[,"neighbor"])==2)) / length(table(table_for_cell_selection[,"neighbor"]))
+  
   return(list(scatterplot_sampled_object=scatterplot_sampled_object, 
               MPP_combined.corrected_cell_numbers=MPP_combined.corrected_cell_numbers,
-              MPP_combined.sce.corrected_cell_numbers=MPP_combined.sce.corrected_cell_numbers))
+              MPP_combined.sce.corrected_cell_numbers=MPP_combined.sce.corrected_cell_numbers,
+              max_sampling_number=max_sampling_number,
+              percentage_of_KO_cells_sampled_once=percentage_of_KO_cells_sampled_once,
+              percentage_of_KO_cells_sampled_twice=percentage_of_KO_cells_sampled_twice))
 }
-
 
 create_plots_showing_MPP_embedding <- function(MPP_combined.sce, path_to_plot_parameters="3d_scatter_parameters.rds", path_to_plots="plots_20220216"){
   
@@ -1935,7 +1943,7 @@ plot_differential_expression_of_signatures <- function(signature_genes=GMP_signa
   pheatmap::pheatmap(combined_matrix, na_col = "grey", color = color, breaks = myBreaks, cluster_rows=FALSE, cluster_cols=FALSE,
                      angle_col=270, fontsize_row=8, fontsize_col=8, fontsize=8,
                      main = plot_title,
-                     filename = full_path, width = 4, height = 7)
+                     filename = full_path, width = 3, height = 7)
   
 }
 

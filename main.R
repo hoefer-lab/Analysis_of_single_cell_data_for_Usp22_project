@@ -68,7 +68,7 @@ path_TBM_KO <- "/Volumes/addition_storage/U22cKO1_TBM/filtered_feature_bc_matrix
 
 # create folder into which all plots will be saved
 path_to_working_directory <- getwd()
-folder_with_plots <- "test_plots_20220313"
+folder_with_plots <- "test_plots_20220314"
 dir.create(paste(path_to_working_directory, folder_with_plots, sep="/"), showWarnings = FALSE)
 
 # analysis of total bone marrow

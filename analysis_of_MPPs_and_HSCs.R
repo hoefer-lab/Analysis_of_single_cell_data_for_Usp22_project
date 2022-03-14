@@ -41,6 +41,17 @@ objects_with_classified_cells <- assign_cells_to_branches_using_slingshot(MPP_co
 MPP_combined <- objects_with_classified_cells[["MPP_combined"]]
 MPP_combined.sce <- objects_with_classified_cells[["MPP_combined.sce"]]
 rm(objects_with_classified_cells)
+# compute percentage of cells in each branch ####
+LMPP_WT <- length(which((MPP_combined$branches=="CLP") & (MPP_combined$condition=="WT"))) / length(which(MPP_combined$condition=="WT"))
+GMP_biased_MPP_WT <- length(which((MPP_combined$branches=="GMP") & (MPP_combined$condition=="WT"))) / length(which(MPP_combined$condition=="WT"))
+MEP_biased_MPP_WT <- length(which((MPP_combined$branches=="MEP") & (MPP_combined$condition=="WT"))) / length(which(MPP_combined$condition=="WT"))
+unbiased_MPP_WT <- length(which((MPP_combined$branches=="undefined") & (MPP_combined$condition=="WT"))) / length(which(MPP_combined$condition=="WT"))
+
+LMPP_KO <- length(which((MPP_combined$branches=="CLP") & (MPP_combined$condition=="KO"))) / length(which(MPP_combined$condition=="KO"))
+GMP_biased_MPP_KO <- length(which((MPP_combined$branches=="GMP") & (MPP_combined$condition=="KO"))) / length(which(MPP_combined$condition=="KO"))
+MEP_biased_MPP_KO <- length(which((MPP_combined$branches=="MEP") & (MPP_combined$condition=="KO"))) / length(which(MPP_combined$condition=="KO"))
+unbiased_MPP_KO <- length(which((MPP_combined$branches=="undefined") & (MPP_combined$condition=="KO"))) / length(which(MPP_combined$condition=="KO"))
+
 
 # inspect Slingshot trajectories and plot embedding for manuscript ####
 create_plots_showing_MPP_embedding_with_curves(MPP_combined.sce=MPP_combined.sce, path_to_plot_parameters="3d_scatter_parameters_20220312.rds", path_to_plots=folder_with_plots)
@@ -96,6 +107,9 @@ sampled_embeddings <- correct_MPP_embedding_for_differential_ditribution_of_cond
 MPP_combined.corrected_cell_numbers <- sampled_embeddings[["MPP_combined.corrected_cell_numbers"]]
 MPP_combined.sce.corrected_cell_numbers <- sampled_embeddings[["MPP_combined.sce.corrected_cell_numbers"]]
 sampled_embeddings[["scatterplot_sampled_object"]]
+sampled_embeddings[["max_sampling_number"]]
+sampled_embeddings[["percentage_of_KO_cells_sampled_once"]]
+sampled_embeddings[["percentage_of_KO_cells_sampled_twice"]]
 rm(sampled_embeddings)
 
 # test if KO and WT cells are equally distributed along trajectories after sampling ####

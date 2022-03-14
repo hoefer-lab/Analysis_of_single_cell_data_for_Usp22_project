@@ -192,6 +192,25 @@ visualize_top_marker_genes_of_clusters <- function(object_with_clusters, path_fo
     bg = NULL
   )
 }
+
+visualize_cell_cycle_gene_expression_in_LTHSCs <- function(LTHSC_combined=LTHSC_combined, folder_with_plots=folder_with_plots){
+  LTHSC_combined$new_Phase <- factor(LTHSC_combined$new_Phase, levels=c("G1", "G1S", "S", "G2M"))
+  dotplot <- DotPlot(object = LTHSC_combined, group.by = "new_Phase", features = c(s.genes, g2m.genes), assay = "SCT", dot.scale = 3)+ coord_flip() + theme(axis.text.x = element_text(angle = 90, size = 10), axis.text.y = element_text(size = 6))
+  ggsave(
+    paste(folder_with_plots, "LTs_cycle_genes_dotplot.pdf", sep="/"),
+    plot = dotplot,
+    device = NULL,
+    path = NULL,
+    scale = 1,
+    width = 10,
+    height = 18,
+    units = "cm",
+    dpi = 800,
+    limitsize = TRUE,
+    bg = NULL
+  )
+}
+
 # function to identify cluster with cycling cells
 cell_cycle <- function(object_WT, object_KO_with_ref_labels, path_for_plot){
   cyclin.genes <- rownames(object_WT)[grep("^Ccn[abde][0-9]$", rownames(object_WT))]
@@ -309,6 +328,36 @@ plot_umaps_cell_cycle <- function(WT, KO, path_for_plot){
     bg = NULL
   )
 }
+plot_umaps_cell_cycle_updated <- function(WT, KO, path_for_plot){
+  WT_plot <- DimPlot(object = WT, reduction = "umap_cycle", label = FALSE, group.by = "new_Phase", combine = FALSE, pt.size = 0.1)
+  WT_plot <- WT_plot[[1]] + labs(color = "new_Phase")
+  WT_plot[["labels"]][["title"]] <- "WT LT-HSC"
+  WT_plot <- WT_plot + theme(plot.title = element_text(size=12), axis.title.x = element_text(size=12), axis.title.y = element_text(size=12))
+  WT_plot[["layers"]][[1]][["aes_params"]][["alpha"]] <- 0.5
+  
+  KO_plot <- DimPlot(object = KO, reduction = "umap_cycle", label = FALSE, group.by = "new_Phase", combine = FALSE, pt.size = 0.1)
+  KO_plot <- KO_plot[[1]] + labs(color = "new_Phase")
+  KO_plot[["labels"]][["title"]] <- "KO LT-HSC"
+  KO_plot <- KO_plot + theme(plot.title = element_text(size=12), axis.title.x = element_text(size=12), axis.title.y = element_text(size=12))
+  KO_plot[["layers"]][[1]][["aes_params"]][["alpha"]] <- 0.5
+  
+  combined_plot <- WT_plot + KO_plot + plot_layout(guides = 'collect')
+  
+  ggsave(
+    paste(path_for_plot, "LTs_cell_cycle_umap.pdf", sep="/"),
+    plot = combined_plot,
+    device = NULL,
+    path = NULL,
+    scale = 1,
+    width = 15,
+    height = 7.5,
+    units = "cm",
+    dpi = 800,
+    limitsize = TRUE,
+    bg = NULL
+  )
+}
+
 # function that quantifies cells in a cluster and compares cell frequencies across conditions
 quantify_cell_frequencies_by_cluster <- function(object_WT, object_KO_with_ref_labels, clusters_with_cycling_cells, path_for_plot){
   object_WT@meta.data[["Cluster"]] <- object_WT$cell_cycle
@@ -937,6 +986,7 @@ create_usp22_panel_for_all_stem_cell_populations <- function(HSC_WT, ST_WT, MPP_
   
 }
 
+# # the function below was used to translate human symbols of cell cycle genes to mouse symbols; to save time and to avoid connection issues with biomart, those genes were saved in files
 # convertHumanGeneList <- function(x){
 #   require("biomaRt")
 #   human = useMart("ensembl", dataset = "hsapiens_gene_ensembl")
@@ -1581,7 +1631,59 @@ plot_cell_cycle_changes_as_heatmap <- function(annotated_object=MPP_combined, pa
   dev.off()
 }
 
-create_barplot_to_percentage_of_cycling_LTs <- function(LTHSC_combined=LTHSC_combined, path_to_plots="plots_20220216"){
+plot_cell_cycle_changes_in_barplot_MPPs <- function(annotated_object=MPP_combined, path_to_plots=folder_with_plots, width = 5, height = 8){
+  matrix_diff_cycle <- data.frame(branch=c(rep("undefined", 8),
+                                           rep("CLP", 8),
+                                           rep("GMP", 8),
+                                           rep("MEP", 8)),
+                                  condition=c(rep(c(rep("WT", 4), rep("KO", 4)), 4)),
+                                  phase=c(rep(c("G1", "G1S", "S", "G2M"), 8)),
+                                  percentage=rep(0, 4*2*4))
+  
+  for (index in (1:nrow(matrix_diff_cycle))){
+    branch <- matrix_diff_cycle[index, "branch"]
+    condition <- matrix_diff_cycle[index, "condition"]
+    phase <- matrix_diff_cycle[index, "phase"]
+    number_of_cells_in_current_condition_and_cluster <- length(which((annotated_object$condition==condition) & (annotated_object$branches==branch)))
+    matrix_diff_cycle[index, "percentage"] <- (length(which((annotated_object$condition==condition) & (annotated_object$branches==branch) & (annotated_object$new_Phase==phase)))/number_of_cells_in_current_condition_and_cluster)*100
+  }
+  
+  matrix_diff_cycle[which(matrix_diff_cycle[,"branch"]=="undefined"), "branch"] <- "unbiased MPPs"
+  matrix_diff_cycle[which(matrix_diff_cycle[,"branch"]=="CLP"), "branch"] <- "LMPPs"
+  matrix_diff_cycle[which(matrix_diff_cycle[,"branch"]=="GMP"), "branch"] <- "GMP-biased MPPs"
+  matrix_diff_cycle[which(matrix_diff_cycle[,"branch"]=="MEP"), "branch"] <- "MEP-biased MPPs"
+  
+  matrix_diff_cycle[,"branch"] <- factor(matrix_diff_cycle[,"branch"], levels = c("unbiased MPPs", "LMPPs", "GMP-biased MPPs", "MEP-biased MPPs"))
+  matrix_diff_cycle[,"condition"] <- factor(matrix_diff_cycle[,"condition"], levels = c("WT", "KO"))
+  matrix_diff_cycle[,"phase"] <- factor(matrix_diff_cycle[,"phase"], levels = c("G1", "G1S", "S", "G2M"))
+  
+  
+  bar_plot <- ggplot(matrix_diff_cycle,
+                     aes(x = condition,
+                         y = percentage,
+                         fill = phase)) + 
+    geom_bar(stat = "identity",
+             position = "stack") +
+    facet_grid(~ branch, switch=NULL) + 
+    ylab("%") +
+    theme(strip.text.x.top = element_text(angle=270), axis.title.y = element_text(angle=0), panel.grid = element_blank())
+  
+  ggsave(
+    paste(path_to_plots, "MPPs_cell_cycle_barplot.pdf", sep="/"),
+    plot = bar_plot,
+    device = NULL,
+    path = NULL,
+    scale = 1,
+    width = width,
+    height = height,
+    units = "cm",
+    dpi = 800,
+    limitsize = TRUE,
+    bg = NULL
+  )
+}
+
+create_barplot_with_percentage_of_cycling_LTs <- function(LTHSC_combined=LTHSC_combined, path_to_plots="plots_20220216"){
   percentage_non_cycling_WT <- length(which((LTHSC_combined$condition == "WT") & (LTHSC_combined$new_Phase %in% c("G1", "G1S")))) / length(which(LTHSC_combined$condition == "WT"))
   percentage_non_cycling_KO <- length(which((LTHSC_combined$condition == "KO") & (LTHSC_combined$new_Phase %in% c("G1", "G1S")))) / length(which(LTHSC_combined$condition == "KO"))
   df_plotting <- data.frame(condition=c("WT", "KO"),
@@ -1598,6 +1700,46 @@ create_barplot_to_percentage_of_cycling_LTs <- function(LTHSC_combined=LTHSC_com
     scale = 1,
     width = 5,
     height = 8,
+    units = "cm",
+    dpi = 800,
+    limitsize = TRUE,
+    bg = NULL
+  )
+}
+
+plot_cell_cycle_changes_in_barplot_LTs <- function(annotated_object=LTHSC_combined, path_to_plots=folder_with_plots, width = 5, height = 8){
+  matrix_diff_cycle <- data.frame(condition=c(rep("WT", 4), rep("KO", 4)),
+                                  phase=c(rep(c("G1", "G1S", "S", "G2M"), 2)),
+                                  percentage=rep(0, 8))
+  
+  for (index in (1:nrow(matrix_diff_cycle))){
+    condition <- matrix_diff_cycle[index, "condition"]
+    phase <- matrix_diff_cycle[index, "phase"]
+    number_of_cells_in_current_condition <- length(which(annotated_object$condition==condition))
+    matrix_diff_cycle[index, "percentage"] <- (length(which((annotated_object$condition==condition) & (annotated_object$new_Phase==phase)))/number_of_cells_in_current_condition)*100
+  }
+  
+  matrix_diff_cycle[,"condition"] <- factor(matrix_diff_cycle[,"condition"], levels = c("WT", "KO"))
+  matrix_diff_cycle[,"phase"] <- factor(matrix_diff_cycle[,"phase"], levels = c("G1", "G1S", "S", "G2M"))
+  
+  bar_plot <- ggplot(matrix_diff_cycle,
+                     aes(x = phase,
+                         y = percentage,
+                         color=condition)) + 
+    geom_bar(stat = "identity",
+             fill="white", width = 0.4, position = position_dodge(width = 0.8)) +
+    ylab("% of LT-HSCs") +
+    scale_color_manual(values=c("black", "red")) + 
+    theme_classic()
+  
+  ggsave(
+    paste(path_to_plots, "LTs_cell_cycle_barplot.pdf", sep="/"),
+    plot = bar_plot,
+    device = NULL,
+    path = NULL,
+    scale = 1,
+    width = width,
+    height = height,
     units = "cm",
     dpi = 800,
     limitsize = TRUE,
@@ -1729,40 +1871,71 @@ create_plots_showing_MPP_embedding_with_curves <- function(MPP_combined.sce, pat
 
 
 plot_differential_expression_of_signatures <- function(signature_genes=GMP_signature, MPP_combined.corrected_cell_numbers=MPP_combined.corrected_cell_numbers,
+                                                       HSC_combined=HSC_combined,
                                                        plot_title="Differential expression\nof genes specific\nfor GMP-biased MPPs",
                                                        full_path="plots_20220216/GMP_signature_heatmap.pdf"){
-  matrix_deg_GMPsignature <- matrix(0, nrow=length(signature_genes), ncol = length(unique(MPP_combined.corrected_cell_numbers$branches)))
-  colnames(matrix_deg_GMPsignature) <- c("undefined", "CLP", "GMP", "MEP")
-  rownames(matrix_deg_GMPsignature) <- signature_genes
+  matrix_deg_signature_MPPs <- matrix(0, nrow=length(signature_genes), ncol = length(unique(MPP_combined.corrected_cell_numbers$branches)))
+  colnames(matrix_deg_signature_MPPs) <- c("undefined", "CLP", "GMP", "MEP")
+  rownames(matrix_deg_signature_MPPs) <- signature_genes
   for (index in (1:length(unique(MPP_combined.corrected_cell_numbers$branches)))){
     current_cluster <- unique(MPP_combined.corrected_cell_numbers$branches)[index]
     values_WT <- MPP_combined.corrected_cell_numbers@assays[["SCT"]]@counts[, which((MPP_combined.corrected_cell_numbers$branches==current_cluster) & (MPP_combined.corrected_cell_numbers$condition=="WT"))]
     values_KO <- MPP_combined.corrected_cell_numbers@assays[["SCT"]]@counts[, which((MPP_combined.corrected_cell_numbers$branches==current_cluster) & (MPP_combined.corrected_cell_numbers$condition=="KO"))]
-    for (index2 in (1:nrow(matrix_deg_GMPsignature))){
-      current_gene <- rownames(matrix_deg_GMPsignature)[index2]
+    for (index2 in (1:nrow(matrix_deg_signature_MPPs))){
+      current_gene <- rownames(matrix_deg_signature_MPPs)[index2]
       current_WT_values <- values_WT[current_gene,]
       current_KO_values <- values_KO[current_gene,]
       p_value <- wilcox.test(current_WT_values, current_KO_values)$p.value
       if ((is.numeric(p_value)==TRUE) & (!is.nan(p_value))){
         if (p_value<0.05){
-          matrix_deg_GMPsignature[current_gene, current_cluster] <- log2((mean(current_KO_values)+1)/(mean(current_WT_values)+1))
+          matrix_deg_signature_MPPs[current_gene, current_cluster] <- log2((mean(current_KO_values)+1)/(mean(current_WT_values)+1))
         } else {
-          matrix_deg_GMPsignature[current_gene, current_cluster] <- NA
+          matrix_deg_signature_MPPs[current_gene, current_cluster] <- NA
         }
       } else {
-        matrix_deg_GMPsignature[current_gene, current_cluster] <- NA
+        matrix_deg_signature_MPPs[current_gene, current_cluster] <- NA
       }
     }
   }
-  colnames(matrix_deg_GMPsignature) <- c("unbiased MPPs", "LMPPs", "GMP-biased MPPs", "MEP-biased MPPs")
+  colnames(matrix_deg_signature_MPPs) <- c("unbiased MPPs", "LMPPs", "GMP-biased MPPs", "MEP-biased MPPs")
+  
+  matrix_deg_signature_HSCs <- matrix(0, nrow=length(signature_genes), ncol = length(unique(HSC_combined$sample)))
+  colnames(matrix_deg_signature_HSCs) <- c("LT-HSCs", "ST-HSCs")
+  rownames(matrix_deg_signature_HSCs) <- signature_genes
+  for (index in (1:length(unique(HSC_combined$sample)))){
+    current_cluster <- unique(HSC_combined$sample)[index]
+    values_WT <- HSC_combined@assays[["SCT"]]@counts[, which((HSC_combined$sample==current_cluster) & (HSC_combined$condition=="WT"))]
+    values_KO <- HSC_combined@assays[["SCT"]]@counts[, which((HSC_combined$sample==current_cluster) & (HSC_combined$condition=="KO"))]
+    for (index2 in (1:nrow(matrix_deg_signature_HSCs))){
+      current_gene <- rownames(matrix_deg_signature_HSCs)[index2]
+      if (current_gene %in% rownames(HSC_combined@assays[["SCT"]]@counts)){
+        current_WT_values <- values_WT[current_gene,]
+        current_KO_values <- values_KO[current_gene,]
+        p_value <- wilcox.test(current_WT_values, current_KO_values)$p.value
+        if ((is.numeric(p_value)==TRUE) & (!is.nan(p_value))){
+          if (p_value<0.05){
+            matrix_deg_signature_HSCs[current_gene, current_cluster] <- log2((mean(current_KO_values)+1)/(mean(current_WT_values)+1))
+          } else {
+            matrix_deg_signature_HSCs[current_gene, current_cluster] <- NA
+          }
+        } else {
+          matrix_deg_signature_HSCs[current_gene, current_cluster] <- NA
+        }
+      } else {
+        matrix_deg_signature_HSCs[current_gene, current_cluster] <- NA
+      }
+    }
+  }
+  
+  combined_matrix <- cbind(matrix_deg_signature_HSCs, matrix_deg_signature_MPPs)
   
   color <- colorRampPalette(c("blue", "white", "red"))(100)
-  myBreaks <- c(seq(min(matrix_deg_GMPsignature, na.rm = TRUE), 0, length.out=ceiling(100/2) + 1), 
-                seq(max(matrix_deg_GMPsignature, na.rm = TRUE)/100, max(matrix_deg_GMPsignature, na.rm = TRUE), length.out=floor(100/2)))
-  pheatmap::pheatmap(matrix_deg_GMPsignature, na_col = "grey", color = color, breaks = myBreaks, cluster_rows=FALSE, cluster_cols=FALSE,
+  myBreaks <- c(seq(min(combined_matrix, na.rm = TRUE), 0, length.out=ceiling(100/2) + 1), 
+                seq(max(combined_matrix, na.rm = TRUE)/100, max(combined_matrix, na.rm = TRUE), length.out=floor(100/2)))
+  pheatmap::pheatmap(combined_matrix, na_col = "grey", color = color, breaks = myBreaks, cluster_rows=FALSE, cluster_cols=FALSE,
                      angle_col=270, fontsize_row=8, fontsize_col=8, fontsize=8,
                      main = plot_title,
-                     filename = full_path, width = 3, height = 7)
+                     filename = full_path, width = 4, height = 7)
   
 }
 

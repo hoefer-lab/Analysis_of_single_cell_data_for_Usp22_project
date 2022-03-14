@@ -57,6 +57,7 @@ cell_cycle_results_MPPs[["umap_cell_cycle"]]
 rm(cell_cycle_results_MPPs)
 
 plot_cell_cycle_changes_as_heatmap(annotated_object=MPP_combined, path_to_plots=folder_with_plots)
+plot_cell_cycle_changes_in_barplot_MPPs(annotated_object=MPP_combined, path_to_plots=folder_with_plots, width = 10, height = 8)
 
 # cell-cycle analysis of LT-HSCs ####
 LTHSC_WT <- load_process_data(path=path_HSC_WT, nFeature_lower_threshold=2500, nFeature_upper_threshold=10000, percent.mt_threshold=6, including_normalization=FALSE)
@@ -74,9 +75,20 @@ cell_cycle_results_LTs <- assign_cells_to_cell_cycle_phases_based_on_gene_lists(
                                                                                 g2m.genes=g2m.genes,
                                                                                 s.genes=s.genes)
 LTHSC_combined <- cell_cycle_results_LTs[["annotated_object"]]
-cell_cycle_results_LTs[["umap_cell_cycle"]]
+plot_umaps_cell_cycle_updated(WT=LTHSC_combined[,which(LTHSC_combined$condition=="WT")], 
+                              KO=LTHSC_combined[,which(LTHSC_combined$condition=="KO")], 
+                              path_for_plot=folder_with_plots)
+create_barplot_with_percentage_of_cycling_LTs(LTHSC_combined=LTHSC_combined, path_to_plots=folder_with_plots)
+plot_cell_cycle_changes_in_barplot_LTs(annotated_object=LTHSC_combined, path_to_plots=folder_with_plots, width = 7, height = 8)
+visualize_cell_cycle_gene_expression_in_LTHSCs(LTHSC_combined=LTHSC_combined, folder_with_plots=folder_with_plots)
 rm(cell_cycle_results_LTs)
-create_barplot_to_percentage_of_cycling_LTs(LTHSC_combined=LTHSC_combined, path_to_plots=folder_with_plots)
+
+
+
+
+
+
+
 
 
 # create sampled version of objects in which densities of WT and KO cells are comparable throughout the embedding ####
@@ -129,16 +141,18 @@ signatures <- compute_per_cell_scores_of_GMP_LMPP_priming_and_plot_distribution(
                                                                   objects_for_scoring=list(MPP_combined.corrected_cell_numbers=MPP_combined.corrected_cell_numbers,
                                                                                            HSC_combined=HSC_combined),
                                                                   path_for_plot= paste(folder_with_plots, "/",sep=""))
-rm(HSC_combined)
 
 # create heat map showing differential expression of signature in MPPs ####
 plot_differential_expression_of_signatures(signature_genes=signatures[["GMP_signature"]], MPP_combined.corrected_cell_numbers=MPP_combined.corrected_cell_numbers,
+                                           HSC_combined=HSC_combined,
                                            plot_title="Differential expression\nof genes specific\nfor GMP-biased MPPs",
                                            full_path=paste(folder_with_plots, "GMP_signature_heatmap.pdf", sep="/"))
 
 plot_differential_expression_of_signatures(signature_genes=signatures[["CLP_signature"]], MPP_combined.corrected_cell_numbers=MPP_combined.corrected_cell_numbers,
+                                           HSC_combined=HSC_combined,
                                            plot_title="Differential expression\nof genes specific\nfor LMPPs",
                                            full_path=paste(folder_with_plots, "LMPP_signature_heatmap.pdf", sep="/"))
+rm(HSC_combined)
 
 # do GSEA for MPPs ####
 processed_GSEA_results <- run_GSEA_and_group_significant_GO_terms_by_overlap_of_gene_sets(seurat_object=MPP_combined.corrected_cell_numbers, significance_threshold=0.05, edge_threshold_Jaccard=0.3, min_number_of_leading_edge_genes=70)

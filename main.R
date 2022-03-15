@@ -1,6 +1,4 @@
-# !!! Make sure that you have already created a new project and your current working directory equals the project's directory.
-# The project directory needs to contain all downloaded files
-# Also make sure that your computer is connected to the internet while running the script because some functions connect to online databases.
+# !!! Make sure to follow the instructions in the README file
 
 # Install and load all required packages using the versions listed in the reproducing.lock file.
 renv_installed <- require("renv")

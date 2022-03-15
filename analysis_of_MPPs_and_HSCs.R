@@ -1,4 +1,4 @@
-# analysis of phenotype and molecular signatures of Usp22 knockout in MPPs and HSCs ####
+# load MPPs, annotate them by SingleR and prepare them for FateID ####
 set.seed(1)
 sample(5)
 MPP_WT <- load_process_data(path=path_MPP_WT, nFeature_lower_threshold=2500, nFeature_upper_threshold=10000, percent.mt_threshold=6, including_normalization=TRUE)
@@ -36,12 +36,12 @@ MPP_combined <- dmap_results[["MPP_combined"]]
 MPP_combined.sce <- dmap_results[["MPP_combined.sce"]]
 rm(dmap_results)
 
-# assign cells to branches using Slingshot trajectories ####
+# assign MPPs to branches using Slingshot trajectories ####
 objects_with_classified_cells <- assign_cells_to_branches_using_slingshot(MPP_combined, MPP_combined.sce)
 MPP_combined <- objects_with_classified_cells[["MPP_combined"]]
 MPP_combined.sce <- objects_with_classified_cells[["MPP_combined.sce"]]
 rm(objects_with_classified_cells)
-# compute percentage of cells in each branch ####
+# compute percentage of cells in each MPP subset for both conditions ####
 LMPP_WT <- length(which((MPP_combined$branches=="CLP") & (MPP_combined$condition=="WT"))) / length(which(MPP_combined$condition=="WT"))
 GMP_biased_MPP_WT <- length(which((MPP_combined$branches=="GMP") & (MPP_combined$condition=="WT"))) / length(which(MPP_combined$condition=="WT"))
 MEP_biased_MPP_WT <- length(which((MPP_combined$branches=="MEP") & (MPP_combined$condition=="WT"))) / length(which(MPP_combined$condition=="WT"))
@@ -94,14 +94,6 @@ plot_cell_cycle_changes_in_barplot_LTs(annotated_object=LTHSC_combined, path_to_
 visualize_cell_cycle_gene_expression_in_LTHSCs(LTHSC_combined=LTHSC_combined, folder_with_plots=folder_with_plots)
 rm(cell_cycle_results_LTs)
 
-
-
-
-
-
-
-
-
 # create sampled version of objects in which densities of WT and KO cells are comparable throughout the embedding ####
 sampled_embeddings <- correct_MPP_embedding_for_differential_ditribution_of_conditions(MPP_combined=MPP_combined, MPP_combined.sce=MPP_combined.sce, numbers_of_direct_neighbors_to_consider=1)
 MPP_combined.corrected_cell_numbers <- sampled_embeddings[["MPP_combined.corrected_cell_numbers"]]
@@ -131,7 +123,7 @@ plot_condition_imbalance_analysis(df_confidence, x_label="pseudo-time from HSCs 
 rm(list_with_trajectories_and_their_medians_and_CIs_ordered_by_pseudotime)
 rm(df_confidence)
 
-# compute scores of GMP-bias and LMPP signature for each cell in MPPs, LTs and STs; visualize as violin plot ####
+# compute scores of signatures of GMP-biased MPPs and LMPPs for each cell in MPPs, LTs and STs; visualize as violin plot ####
 LTHSC_WT <- load_process_data(path=path_HSC_WT, nFeature_lower_threshold=2500, nFeature_upper_threshold=10000, percent.mt_threshold=6, including_normalization=FALSE)
 LTHSC_KO <- load_process_data(path=path_HSC_KO, nFeature_lower_threshold=2500, nFeature_upper_threshold=10000, percent.mt_threshold=6, including_normalization=FALSE)
 STHSC_WT <- load_process_data(path=path_ST_WT, nFeature_lower_threshold=2500, nFeature_upper_threshold=10000, percent.mt_threshold=6, including_normalization=FALSE)
@@ -156,7 +148,7 @@ signatures <- compute_per_cell_scores_of_GMP_LMPP_priming_and_plot_distribution(
                                                                                            HSC_combined=HSC_combined),
                                                                   path_for_plot= paste(folder_with_plots, "/",sep=""))
 
-# create heat map showing differential expression of signature in MPPs ####
+# create heat maps showing differential expression of signature genes in all HSPC subsets ####
 plot_differential_expression_of_signatures(signature_genes=signatures[["GMP_signature"]], MPP_combined.corrected_cell_numbers=MPP_combined.corrected_cell_numbers,
                                            HSC_combined=HSC_combined,
                                            plot_title="Differential expression\nof genes specific\nfor GMP-biased MPPs",
@@ -170,6 +162,7 @@ rm(HSC_combined)
 
 # do GSEA for MPPs ####
 processed_GSEA_results <- run_GSEA_and_group_significant_GO_terms_by_overlap_of_gene_sets(seurat_object=MPP_combined.corrected_cell_numbers, significance_threshold=0.05, edge_threshold_Jaccard=0.3, min_number_of_leading_edge_genes=70)
+# after inspection, the groups of GO terms need to be annotated manually:
 names(processed_GSEA_results[["GO_term_groups_cut_global"]]) <- c("cellular protein-containing complex assembly",
                                                                   "mitochondrion organization",
                                                                   "response to DNA damage stimulus",
@@ -213,8 +206,9 @@ plot_GSEA_heatmap_subcluster(processed_GSEA_results=processed_GSEA_results,
 
 
 
-# GSEA of LT-HSCs ####
+# do GSEA for of LT-HSCs ####
 processed_GSEA_results_LTHSC <- run_GSEA_and_group_significant_GO_terms_by_overlap_of_gene_sets(seurat_object=LTHSC_combined, significance_threshold=0.05, edge_threshold_Jaccard=0.3, min_number_of_leading_edge_genes=100)
+# after inspection, the groups of GO terms need to be annotated manually:
 names(processed_GSEA_results_LTHSC[["GO_term_groups_cut_global"]]) <- c("cellular protein-containing complex assembly",
                                                                         "DNA replication",
                                                                         "development",

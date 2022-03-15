@@ -192,7 +192,7 @@ visualize_top_marker_genes_of_clusters <- function(object_with_clusters, path_fo
     bg = NULL
   )
 }
-
+# function creates a dotplot showing the expression of G2M and S-phase genes in cells classified by cell cycle phase
 visualize_cell_cycle_gene_expression_in_LTHSCs <- function(LTHSC_combined=LTHSC_combined, folder_with_plots=folder_with_plots){
   LTHSC_combined$new_Phase <- factor(LTHSC_combined$new_Phase, levels=c("G1", "G1S", "S", "G2M"))
   dotplot <- DotPlot(object = LTHSC_combined, group.by = "new_Phase", features = c(s.genes, g2m.genes), assay = "SCT", dot.scale = 3)+ coord_flip() + theme(axis.text.x = element_text(angle = 90, size = 10), axis.text.y = element_text(size = 6))
@@ -210,7 +210,6 @@ visualize_cell_cycle_gene_expression_in_LTHSCs <- function(LTHSC_combined=LTHSC_
     bg = NULL
   )
 }
-
 # function to identify cluster with cycling cells
 cell_cycle <- function(object_WT, object_KO_with_ref_labels, path_for_plot){
   cyclin.genes <- rownames(object_WT)[grep("^Ccn[abde][0-9]$", rownames(object_WT))]
@@ -357,7 +356,6 @@ plot_umaps_cell_cycle_updated <- function(WT, KO, path_for_plot){
     bg = NULL
   )
 }
-
 # function that quantifies cells in a cluster and compares cell frequencies across conditions
 quantify_cell_frequencies_by_cluster <- function(object_WT, object_KO_with_ref_labels, clusters_with_cycling_cells, path_for_plot){
   object_WT@meta.data[["Cluster"]] <- object_WT$cell_cycle

@@ -1681,6 +1681,45 @@ plot_cell_cycle_changes_in_barplot_MPPs <- function(annotated_object=MPP_combine
   )
 }
 
+plot_cell_cycle_changes_in_barplot_LTs <- function(annotated_object=LTHSC_combined, path_to_plots=folder_with_plots, width = 5, height = 8){
+  matrix_diff_cycle <- data.frame(condition=c(c(rep("WT", 4), rep("KO", 4))),
+                                  phase=c(rep(c("G1", "G1S", "S", "G2M"), 2)),
+                                  percentage=rep(0, 4*2))
+  
+  for (index in (1:nrow(matrix_diff_cycle))){
+    condition <- matrix_diff_cycle[index, "condition"]
+    phase <- matrix_diff_cycle[index, "phase"]
+    number_of_cells_in_current_condition_and_cluster <- length(which(annotated_object$condition==condition))
+    matrix_diff_cycle[index, "percentage"] <- (length(which((annotated_object$condition==condition) & (annotated_object$new_Phase==phase)))/number_of_cells_in_current_condition_and_cluster)*100
+  }
+  
+  matrix_diff_cycle[,"condition"] <- factor(matrix_diff_cycle[,"condition"], levels = c("WT", "KO"))
+  matrix_diff_cycle[,"phase"] <- factor(matrix_diff_cycle[,"phase"], levels = c("G1", "G1S", "S", "G2M"))
+  
+  bar_plot <- ggplot(matrix_diff_cycle,
+                     aes(x = condition,
+                         y = percentage,
+                         fill = phase)) + 
+    geom_bar(stat = "identity",
+             position = "stack") +
+    ylab("%") +
+    theme(axis.title.y = element_text(angle=0), panel.grid = element_blank())
+  
+  ggsave(
+    paste(path_to_plots, "LTs_cell_cycle_barplot.pdf", sep="/"),
+    plot = bar_plot,
+    device = NULL,
+    path = NULL,
+    scale = 1,
+    width = width,
+    height = height,
+    units = "cm",
+    dpi = 800,
+    limitsize = TRUE,
+    bg = NULL
+  )
+}
+
 create_barplot_with_percentage_of_cycling_LTs <- function(LTHSC_combined=LTHSC_combined, path_to_plots="plots_20220216"){
   percentage_non_cycling_WT <- length(which((LTHSC_combined$condition == "WT") & (LTHSC_combined$new_Phase %in% c("G1", "G1S")))) / length(which(LTHSC_combined$condition == "WT"))
   percentage_non_cycling_KO <- length(which((LTHSC_combined$condition == "KO") & (LTHSC_combined$new_Phase %in% c("G1", "G1S")))) / length(which(LTHSC_combined$condition == "KO"))

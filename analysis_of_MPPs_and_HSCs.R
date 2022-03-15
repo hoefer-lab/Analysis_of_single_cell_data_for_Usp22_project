@@ -92,6 +92,7 @@ plot_umaps_cell_cycle_updated(WT=LTHSC_combined[,which(LTHSC_combined$condition=
 create_barplot_with_percentage_of_cycling_LTs(LTHSC_combined=LTHSC_combined, path_to_plots=folder_with_plots)
 plot_cell_cycle_changes_in_barplot_LTs(annotated_object=LTHSC_combined, path_to_plots=folder_with_plots, width = 7, height = 8)
 visualize_cell_cycle_gene_expression_in_LTHSCs(LTHSC_combined=LTHSC_combined, folder_with_plots=folder_with_plots)
+plot_cell_cycle_changes_in_barplot_LTs(annotated_object=LTHSC_combined, path_to_plots=folder_with_plots, width = 6.5, height = 8)
 rm(cell_cycle_results_LTs)
 
 # create sampled version of objects in which densities of WT and KO cells are comparable throughout the embedding ####

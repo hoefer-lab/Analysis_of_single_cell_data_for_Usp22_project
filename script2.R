@@ -2015,25 +2015,30 @@ run_GSEA_and_group_significant_GO_terms_by_overlap_of_gene_sets <- function(seur
               GSEA_results_sampled=GSEA_results_sampled))
 }
 
-plot_filtered_GO_network <- function(processed_GSEA_results=processed_GSEA_results, min_edge=0.3, path_to_plots="plots_20220216", sample_name="MPPs"){
+plot_filtered_GO_network <- function(processed_GSEA_results=processed_GSEA_results, min_edge=0.3, path_to_plots="plots_20220216", sample_name="MPPs", use_old_coordinates=FALSE, save_new_coordinates=FALSE, file_name_new_coordinates=NULL, file_name_old_coordinates=NULL){
+  basic_file_name <- paste(path_to_plots, sample_name, sep="/")
   # create filtered gsea-results object
   retained_GO_terms <- unique(unlist(processed_GSEA_results[["GO_term_groups_cut_global"]]))
   results_global_filtered <- processed_GSEA_results[["results_readable"]]
   results_global_filtered@result <- results_global_filtered@result[which(results_global_filtered@result$Description %in% retained_GO_terms),]
   # plot global filtered GO-term groups
-  grouped_GO_terms_plot <- emapplot(results_global_filtered, showCategory = length(retained_GO_terms),          
-                                    color = "p.adjust",
-                                    layout = "nicely",
-                                    cex_category = 0.2,
-                                    cex_line = 0.2,
-                                    min_edge = min_edge,
-                                    cex_label_category = 0.0)
+  grouped_GO_terms_plot_labeled <- emapplot(results_global_filtered, showCategory = length(retained_GO_terms),          
+                                            color = "p.adjust",
+                                            layout = "nicely",
+                                            cex_category = 0.2,
+                                            cex_line = 0.2,
+                                            min_edge = min_edge,
+                                            cex_label_category = 0.2)
   
-  basic_file_name <- paste(path_to_plots, sample_name, sep="/")
+  if(use_old_coordinates==TRUE){
+    old_coordinates <- readRDS(file=file_name_old_coordinates)
+    grouped_GO_terms_plot_labeled[["data"]][["x"]] <- old_coordinates[,"x"]
+    grouped_GO_terms_plot_labeled[["data"]][["y"]] <- old_coordinates[,"y"]
+  }
   
   ggsave(
-    paste(basic_file_name, "GO_network_unlabeled.pdf", sep="_"),
-    plot = grouped_GO_terms_plot,
+    paste(basic_file_name, "GO_network_labeled.pdf", sep="_"),
+    plot = grouped_GO_terms_plot_labeled,
     device = NULL,
     path = NULL,
     scale = 1,
@@ -2045,17 +2050,26 @@ plot_filtered_GO_network <- function(processed_GSEA_results=processed_GSEA_resul
     bg = NULL
   )
   
-  grouped_GO_terms_plot_labeled <- emapplot(results_global_filtered, showCategory = length(retained_GO_terms),          
-                                            color = "p.adjust",
-                                            layout = "nicely",
-                                            cex_category = 0.2,
-                                            cex_line = 0.2,
-                                            min_edge = min_edge,
-                                            cex_label_category = 0.2)
+  coordinates_of_labeled_plot <- data.frame(x=grouped_GO_terms_plot_labeled[["data"]][["x"]], y=grouped_GO_terms_plot_labeled[["data"]][["y"]])
+
+  if(save_new_coordinates==TRUE){
+    saveRDS(object=coordinates_of_labeled_plot, file=file_name_new_coordinates)
+  }
+  
+  grouped_GO_terms_plot <- emapplot(results_global_filtered, showCategory = length(retained_GO_terms),          
+                                    color = "p.adjust",
+                                    layout = "nicely",
+                                    cex_category = 0.2,
+                                    cex_line = 0.2,
+                                    min_edge = min_edge,
+                                    cex_label_category = 0.0)
+  
+  grouped_GO_terms_plot[["data"]][["x"]] <- coordinates_of_labeled_plot[,"x"]
+  grouped_GO_terms_plot[["data"]][["y"]] <- coordinates_of_labeled_plot[,"y"]
   
   ggsave(
-    paste(basic_file_name, "GO_network_labeled.pdf", sep="_"),
-    plot = grouped_GO_terms_plot_labeled,
+    paste(basic_file_name, "GO_network_unlabeled.pdf", sep="_"),
+    plot = grouped_GO_terms_plot,
     device = NULL,
     path = NULL,
     scale = 1,

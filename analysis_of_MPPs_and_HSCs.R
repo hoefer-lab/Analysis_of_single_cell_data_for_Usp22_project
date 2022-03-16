@@ -178,7 +178,7 @@ names(processed_GSEA_results[["GO_term_groups_cut_global"]]) <- c("cellular prot
                                                                   "immune processes",
                                                                   "tissue development"
                                                                   )
-plot_filtered_GO_network(processed_GSEA_results=processed_GSEA_results, min_edge=0.3, path_to_plots=folder_with_plots, sample_name = "MPPs")
+plot_filtered_GO_network(processed_GSEA_results=processed_GSEA_results, min_edge=0.3, path_to_plots=folder_with_plots, sample_name = "MPPs", use_old_coordinates=TRUE, save_new_coordinates=FALSE, file_name_new_coordinates=NULL, file_name_old_coordinates="MPPs_emapplot_coordinates_20220316")
 # plot heatmap at level of global clusters
 plot_GSEA_heatmap_global(processed_GSEA_results=processed_GSEA_results, log2FC_threshold=1.2, path_to_file=folder_with_plots, sample_name = "MPPs")
 

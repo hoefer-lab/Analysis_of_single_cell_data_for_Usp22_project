@@ -57,7 +57,7 @@ replicate <- 1
 save_intermediate_results <- FALSE
 
 # specify whether final objects containing processed cell data should be saved
-save_final_objects <- TRUE
+save_final_objects <- FALSE
 
 # specify whether saved objects containing intermediate results from a previous run should be loaded to quickly reproduce plots
 load_intermediate_results <- TRUE
@@ -98,13 +98,13 @@ if (replicate==2){
 
 # create folder into which all plots will be saved
 path_to_working_directory <- getwd()
-folder_with_plots <- paste("plots_of_replicates_20220725", as.character(replicate_parameters[["replicate"]]), sep = "_")
+folder_with_plots <- paste("test_20220817", as.character(replicate_parameters[["replicate"]]), sep = "_")
 dir.create(paste(path_to_working_directory, folder_with_plots, sep="/"), showWarnings = FALSE)
 
 # analysis of total bone marrow
-source("analysis_of_total_bone_marrow_replicate.R", local=FALSE)
+source("analysis_of_total_bone_marrow.R", local=FALSE)
 
 
 # analysis of MPPs and HSCs
-source("analysis_of_MPPs_and_HSCs_replicate.R", local=FALSE)
+source("analysis_of_MPPs_and_HSCs.R", local=FALSE)
 

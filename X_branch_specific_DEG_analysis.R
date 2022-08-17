@@ -3,7 +3,14 @@ path_to_working_directory <- getwd()
 folder_with_plots <- "branch_specific_DEG_analysis_all_mice_20220811"
 dir.create(paste(path_to_working_directory, folder_with_plots, sep="/"), showWarnings = FALSE)
 
-MPP <- readRDS(file="MPP_all_experiments")
+
+MPP1 <- readRDS(file = "/Users/metz/Nextcloud/backup_Usp22_data_and_Robjects/R_objects_Usp22/objects_with_intermediate_results/1/MPP_combined_after_slingshot.rds")
+MPP2 <- readRDS(file = "/Users/metz/Nextcloud/backup_Usp22_data_and_Robjects/R_objects_Usp22/objects_with_intermediate_results/2/MPP_combined_after_slingshot.rds")
+MPP <- merge(MPP1, y = c(MPP2), add.cell.ids = NULL, project = "U22")
+MPP@meta.data[["experiment"]] <- c(rep("1", ncol(MPP1)), rep("2", ncol(MPP2)))
+rm(MPP1)
+rm(MPP2)
+
 DefaultAssay(MPP) <- "RNA"
 MPP <- Seurat::SCTransform(MPP, verbose = FALSE, variable.features.n = NULL, variable.features.rv.th = 1.3, conserve.memory = TRUE, do.correct.umi = TRUE)
 

@@ -63,7 +63,7 @@
   common_genes_ensemble <- mapIds(ens.mm.v101, keys=genes_for_normalization,
                                   keytype="SYMBOL", column="GENEID")
   library(EDASeq)
-  gene_length <- EDASeq::getGeneLengthAndGCContent(
+  gene_length <- getGeneLengthAndGCContent_reproducible(
     id = common_genes_ensemble,
     org = 'mmusculus',
     mode = c('biomart', 'org.db'))

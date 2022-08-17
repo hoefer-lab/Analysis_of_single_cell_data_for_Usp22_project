@@ -83,7 +83,7 @@ annotate_by_SingleR <- function(object_to_annotate, path_helper_functions="annot
   rownames(ref_data_haemoshere) <- .translate_gene_ID(gene_ID_vector=rownames(ref_data_haemoshere))
   
   # 1.2. extract only samples of interest (cell types that were purified from total bone marrow are used if available; otherwise samples from other tissues are used)
-  ref_data_haemoshere <- .clean_haemosphere_data(haemoshere_sample_table=haemoshere_sample_table, 
+  ref_data_haemoshere <- .clean_haemosphere_data(haemoshere_sample_table=haemoshere_sample_table,
                                                  ref_data_haemoshere=ref_data_haemoshere)
   ref_data_immgen_multiple_tissues <- .extract_T_NKT_cells_from_immgen_which_are_not_from_bone_marrow(ref_data_immgen=ref_data_immgen)
   ref_data_immgen <- ref_data_immgen[,colnames(ref_data_immgen)[which(grepl("BM", colnames(ref_data_immgen), fixed = TRUE))]]
@@ -98,17 +98,17 @@ annotate_by_SingleR <- function(object_to_annotate, path_helper_functions="annot
   ref_data_immgen_multiple_tissues <- object_with_same_genes[["ref_data_immgen_multiple_tissues"]]
   
   # 3. do TPM normalization: divide by gene length and scale afterwards; this is necessary since 10X scRNAseq data are "TPM-normalized by nature" since molecules are counted by UMIs
-  list_with_normalized_objects <- .TPM_normalization(genes_for_normalization=rownames(sc_data), 
-                     ref_data_immgen=ref_data_immgen, 
-                     ref_data_haemoshere=ref_data_haemoshere, 
-                     ref_data_immgen2=ref_data_immgen2, 
-                     ref_data_immgen_multiple_tissues=ref_data_immgen_multiple_tissues)
+  list_with_normalized_objects <- .TPM_normalization(genes_for_normalization=rownames(sc_data),
+                                                     ref_data_immgen=ref_data_immgen,
+                                                     ref_data_haemoshere=ref_data_haemoshere,
+                                                     ref_data_immgen2=ref_data_immgen2,
+                                                     ref_data_immgen_multiple_tissues=ref_data_immgen_multiple_tissues)
   ref_data_immgen <- list_with_normalized_objects[["ref_data_immgen"]]
   ref_data_immgen2 <- list_with_normalized_objects[["ref_data_immgen2"]]
   ref_data_haemoshere <- list_with_normalized_objects[["ref_data_haemoshere"]]
   ref_data_immgen_multiple_tissues <- list_with_normalized_objects[["ref_data_immgen_multiple_tissues"]]
   
-  # 4. add pseudocount(1) and do log2 transformation 
+  # 4. add pseudocount(1) and do log2 transformation
   # (necessary to allow gene selection within SingleR)
   ref_data_immgen_log2 <- log2(ref_data_immgen+1)
   ref_data_immgen2_log2 <- log2(ref_data_immgen2+1)
@@ -125,7 +125,7 @@ annotate_by_SingleR <- function(object_to_annotate, path_helper_functions="annot
   ref_data_immgen_log2=renamed_tables[["ref_data_immgen_log2"]]
   ref_data_haemoshere_log2=renamed_tables[["ref_data_haemoshere_log2"]]
   ref_data_immgen_multiple_tissues_log2=renamed_tables[["ref_data_immgen_multiple_tissues_log2"]]
-
+  
   # 7. some samples are removed to avoid to much overlap between populations (e.g. HSC, LSK, MMP2/3/4)
   col_indices_to_keep_immgen <- which(! (colnames(ref_data_immgen_log2) %in% c("GN", "MMP2","MMP3", "MMP4")))
   col_indices_to_keep_haemosphere <- which(! (colnames(ref_data_haemoshere_log2) %in% c("LSK")))
@@ -134,7 +134,7 @@ annotate_by_SingleR <- function(object_to_annotate, path_helper_functions="annot
   
   # 8. running singleR:
   annotation_results <- SingleR(test = sc_data,
-                                ref = list(Immgen=ref_data_immgen_log2_clean, Haemoshere=ref_data_haemoshere_log2_clean, AllTissues=ref_data_immgen_multiple_tissues_log2), 
+                                ref = list(Immgen=ref_data_immgen_log2_clean, Haemoshere=ref_data_haemoshere_log2_clean, AllTissues=ref_data_immgen_multiple_tissues_log2),
                                 labels = list(colnames(ref_data_immgen_log2_clean), colnames(ref_data_haemoshere_log2_clean), colnames(ref_data_immgen_multiple_tissues_log2)))
   # write cell labels into Seurat object and plot on umap
   annotation_results_sorted <- annotation_results[colnames(object_to_annotate@assays[[assay_to_use]]@counts),]
@@ -149,6 +149,8 @@ annotate_by_SingleR <- function(object_to_annotate, path_helper_functions="annot
   object_to_annotate$SingleR_labels[which(object_to_annotate$SingleR_labels %in% c("T4", "Tgd", "T8", "NKT"))] <- "T"
   return(object_to_annotate)
 }
+
+
 # function to annotate cells more coarse grained
 get_coarse_annotation <- function(object_to_annotate){
   object_to_annotate$SingleR_labels[which(object_to_annotate$SingleR_labels %in% c("LTHSC", "STHSC", "MPP"))] <- "stem cells"
@@ -156,11 +158,24 @@ get_coarse_annotation <- function(object_to_annotate){
   object_to_annotate$SingleR_labels[which(object_to_annotate$SingleR_labels %in% c("Eo", "Neut"))] <- "Granulocytes"
   object_to_annotate$SingleR_labels[which(object_to_annotate$SingleR_labels %in% c("B", "proB", "CLP"))] <- "B-cells"
   object_to_annotate$SingleR_labels[which(object_to_annotate$SingleR_labels %in% c("Mono", "InfMono"))] <- "Monocytes"
-  DimPlot(object = object_to_annotate, reduction = "umap", label = TRUE, group.by = "SingleR_labels", repel = TRUE)+NoLegend()
-  DimPlot(object = object_to_annotate, reduction = "umap", label = TRUE, group.by = "seurat_clusters", repel = TRUE)+NoLegend()
-  object_to_annotate$SingleR_labels[which((!(object_to_annotate$seurat_clusters %in% c("17", "3", "12", "13"))) & (object_to_annotate$SingleR_labels %in% c("B-cells")))] <- "CLP"
-  object_to_annotate$SingleR_labels[which(object_to_annotate$seurat_clusters %in% c("15"))] <- "T"
-  object_to_annotate$SingleR_labels[which(object_to_annotate$seurat_clusters %in% c("18"))] <- "NK"
+  #DimPlot(object = object_to_annotate, reduction = "umap", label = TRUE, group.by = "SingleR_labels", repel = TRUE)+NoLegend()
+  #DimPlot(object = object_to_annotate, reduction = "umap", label = TRUE, group.by = "seurat_clusters", repel = TRUE)+NoLegend()
+  most_freq_cell_types <- c()
+  for (index in (1:length(unique(object_to_annotate$seurat_clusters)))){
+    current_cluster <- unique(object_to_annotate$seurat_clusters)[index]
+    current_labels <- object_to_annotate$SingleR_labels[which(object_to_annotate$seurat_clusters==current_cluster)]
+    frequencies <- table(current_labels)
+    freq_vector <- as.vector(frequencies)
+    names(freq_vector) <- names(frequencies)
+    most_freq_cell_types <- append(most_freq_cell_types, names(freq_vector[order(freq_vector, decreasing = TRUE)])[1])
+  }
+  names(most_freq_cell_types) <- unique(object_to_annotate$seurat_clusters)
+  B_cell_clusters <- names(most_freq_cell_types)[which(most_freq_cell_types=="B-cells")]
+  object_to_annotate$SingleR_labels[which((!(object_to_annotate$seurat_clusters %in% B_cell_clusters)) & (object_to_annotate$SingleR_labels %in% c("B-cells")))] <- "CLP"
+  T_cell_clusters <- names(most_freq_cell_types)[which(most_freq_cell_types=="T")]
+  object_to_annotate$SingleR_labels[which(object_to_annotate$seurat_clusters %in% T_cell_clusters)] <- "T"
+  NK_cell_clusters <- names(most_freq_cell_types)[which(most_freq_cell_types=="NK")]
+  object_to_annotate$SingleR_labels[which(object_to_annotate$seurat_clusters %in% NK_cell_clusters)] <- "NK"
   return(object_to_annotate)
 }
 # function to visualize markers of clusters
@@ -171,7 +186,7 @@ visualize_top_marker_genes_of_clusters <- function(object_with_clusters, path_fo
   for (index in (1:length(clusters_HSC))){
     current_cluster <- clusters_HSC[index]
     markers_current_cluster <- markers[which((markers$cluster==current_cluster) &
-                                                            (markers$p_val_adj<p_val_ad_thres)),]
+                                               (markers$p_val_adj<p_val_ad_thres)),]
     sorted_genes <- markers_current_cluster[order(markers_current_cluster$avg_log2FC, decreasing = TRUE), "gene"]
     top_10 <- sorted_genes[1:number_of_top_markers_per_cluster]
     union_of_top_markers <- append(union_of_top_markers, top_10)
@@ -219,7 +234,7 @@ cell_cycle <- function(object_WT, object_KO_with_ref_labels, path_for_plot){
   DefaultAssay(object_WT) <- "RNA"
   object_WT <- Seurat::SCTransform(object_WT, verbose = FALSE, residual.features=c(cyclin.genes, c("Mki67", "Top2a")))
   heat_WT <- DoHeatmap(object_WT, features = c(cyclin.genes, c("Mki67", "Top2a")), slot = "scale.data", assay = "SCT", group.by = "Cluster", combine = FALSE, raster = FALSE)
- 
+  
   object_KO_with_ref_labels@meta.data[["Cluster"]] <- object_KO_with_ref_labels$predicted.celltype
   DefaultAssay(object_KO_with_ref_labels) <- "RNA"
   object_KO_with_ref_labels <- Seurat::SCTransform(object_KO_with_ref_labels, verbose = FALSE, residual.features=c(cyclin.genes, c("Mki67", "Top2a")))
@@ -390,15 +405,15 @@ quantify_cell_frequencies_by_cluster <- function(object_WT, object_KO_with_ref_l
   )
 }
 # compute log2(fold-changes) of cell type frequencies between conditions with 95% confidence intervalls; write pdf
-quantify_compositional_changes_of_cell_types <- function(TBM_combined, path_for_plot="Figure_plot.pdf"){
+quantify_compositional_changes_of_cell_types <- function(TBM_combined, path_for_plot="Figure_plot.pdf", pseudocount=0.01){
   # compute log2FCs for all populations with more than 100 cells in at least one condition
   vector_with_populations <- as.character(unique(TBM_combined$SingleR_labels))
   vector_with_populations <- vector_with_populations[!is.na(vector_with_populations)]
   selection_vector <- c()
   for (index in (1:length(vector_with_populations))){
     current_population <- vector_with_populations[index]
-    if ((length(which((TBM_combined$SingleR_labels == current_population) & (TBM_combined$identity == "WT")))>=1) &
-        (length(which((TBM_combined$SingleR_labels == current_population) & (TBM_combined$identity == "KO")))>=1)){
+    if ((length(which((TBM_combined$SingleR_labels == current_population) & (TBM_combined$identity == "WT")))>=100) |
+        (length(which((TBM_combined$SingleR_labels == current_population) & (TBM_combined$identity == "KO")))>=100)){
       selection_vector <- append(selection_vector, TRUE)
     } else {
       selection_vector <- append(selection_vector, FALSE)
@@ -413,7 +428,7 @@ quantify_compositional_changes_of_cell_types <- function(TBM_combined, path_for_
     WT_freq <- WT/length(which(TBM_combined$identity == "WT"))
     KO <- length(which((TBM_combined$SingleR_labels == current_population) & (TBM_combined$identity == "KO")))
     KO_freq <- KO/length(which(TBM_combined$identity == "KO"))
-    log2FC <- append(log2FC, log2(KO_freq/WT_freq))
+    log2FC <- append(log2FC, log2((KO_freq+pseudocount)/(WT_freq+pseudocount)))
   }
   
   # compute confidence intervalls for foldchanges by bootstrapping
@@ -430,15 +445,15 @@ quantify_compositional_changes_of_cell_types <- function(TBM_combined, path_for_
       current_label <- vector_with_large_populations[index2]
       perc_WT <- length(which(WT_samples == current_label)) / length(WT_samples)
       perc_KO <- length(which(KO_samples == current_label)) / length(KO_samples)
-      foldchanges_after_sampling[index, current_label] <- log2(perc_KO/perc_WT)
+      foldchanges_after_sampling[index, current_label] <- log2((perc_KO+pseudocount)/(perc_WT+pseudocount))
     }
   }
   
   confidence_vector_lower <- c()
   confidence_vector_upper <- c()
   for (index in (1:length(vector_with_large_populations))){
-    confidence_vector_lower <- append(confidence_vector_lower, quantile(as.numeric(foldchanges_after_sampling[, index]), c(.975, .025))[2])
-    confidence_vector_upper <- append(confidence_vector_upper, quantile(as.numeric(foldchanges_after_sampling[, index]), c(.975, .025))[1])
+    confidence_vector_lower <- append(confidence_vector_lower, quantile(as.numeric(foldchanges_after_sampling[, index]), c(.975, .025), na.rm=TRUE)[2])
+    confidence_vector_upper <- append(confidence_vector_upper, quantile(as.numeric(foldchanges_after_sampling[, index]), c(.975, .025), na.rm=TRUE)[1])
   }
   
   # plot fold changes
@@ -524,7 +539,7 @@ run_diffusion_analysis <- function(Linminus_core_LSK){
   Linminus_core_LSK.sce <- as.SingleCellExperiment(Linminus_core_LSK, assay = "SCT")
   dmap <- destiny::DiffusionMap(reducedDim(Linminus_core_LSK.sce,'PCA')[,1:30])
   reducedDim(Linminus_core_LSK.sce, 'DiffusionMap') <- dmap@eigenvectors
-
+  
   # visualize intitial diffusion map
   initial_diff_map_plot_cell_types <- scatter_3d(Linminus_core_LSK.sce, dim.red.name = 'DiffusionMap', color.column="SingleR_labels", marker_size = 20, scene = '')
   initial_diff_map_plot_identity <- scatter_3d(Linminus_core_LSK.sce, dim.red.name = 'DiffusionMap', color.column="identity", marker_size = 20, scene = '')
@@ -641,7 +656,7 @@ define_cluster_identities_on_dmap_for_slingshot_analysis <- function(Interesting
   Interesting_cells$location[GMPs] <- "GMPs"
   Interesting_cells$location[CLPs] <- "CLPs"
   Interesting_cells$location[Baso] <- "Baso"
-
+  
   dmap_plot_with_clusters_for_slingshot <- scatter_3d(Interesting_cells, dim.red.name = 'DiffusionMap', color.column="location", marker_size = 20, scene = '')
   return(list(object_with_endpoints=Interesting_cells, 
               dmap_plot_with_clusters_for_slingshot=dmap_plot_with_clusters_for_slingshot,
@@ -730,7 +745,7 @@ plot_dmap_with_slingshot_trajectories_LSK <- function(Interesting_cells, color_c
   
   
   Fig1 <- Fig1 + geom_path(x=projections_curve2_x,
-              y=projections_curve2_y)+
+                           y=projections_curve2_y)+
     geom_path(x=projections_curve3_x,
               y=projections_curve3_y)
   Fig1 <- Fig1 + annotate("text", x=0.001, y=0.008, label= "Myeloid Traj.") +
@@ -802,13 +817,13 @@ run_condition_imbalance_analysis <- function(Interesting_cells, sample_to_use="L
                                                                                                                                                matrix_with_scores=matrix_with_scores, 
                                                                                                                                                matrix_samples=matrix_samples, 
                                                                                                                                                pseudo_time_trajectory_to_use=pseudo_time_trajectory_to_use)
-
+    
     list_with_interpolated_values <- .interpolate_values(list_sampling_results=list_sampling_results, 
                                                          seurat_sample=seurat_sample,
                                                          pseudo_time_trajectory_to_use=pseudo_time_trajectory_to_use,
                                                          size_moving_window=size_moving_window)
     
-
+    
     df_confidence <- .compute_median_and_ci_of_interpolated_values(list_with_interpolated_values=list_with_interpolated_values)
     list_with_trajectories_and_their_medians_and_CIs_ordered_by_pseudotime <- list.append(list_with_trajectories_and_their_medians_and_CIs_ordered_by_pseudotime, df_confidence)
   }
@@ -933,7 +948,7 @@ create_usp22_panel_for_all_stem_cell_populations <- function(HSC_WT, ST_WT, MPP_
   HSC2[["layers"]][[1]][["aes_params"]][["alpha"]] <- 0.5
   limits <- HSC1[["scales"]][["scales"]][[3]][["limits"]]
   HSC2[["scales"]][["scales"]][[3]][["limits"]] <- limits
-
+  
   
   DefaultAssay(ST_WT) <- "SCT"
   DefaultAssay(ST_KO) <- "SCT"
@@ -945,7 +960,7 @@ create_usp22_panel_for_all_stem_cell_populations <- function(HSC_WT, ST_WT, MPP_
   ST2[["layers"]][[1]][["aes_params"]][["alpha"]] <- 0.5
   limits <- ST1[["scales"]][["scales"]][[3]][["limits"]]
   ST2[["scales"]][["scales"]][[3]][["limits"]] <- limits
-
+  
   
   DefaultAssay(MPP_WT) <- "SCT"
   DefaultAssay(MPP_KO) <- "SCT"
@@ -957,6 +972,7 @@ create_usp22_panel_for_all_stem_cell_populations <- function(HSC_WT, ST_WT, MPP_
   MPP2[["layers"]][[1]][["aes_params"]][["alpha"]] <- 0.5
   limits <- MPP1[["scales"]][["scales"]][[3]][["limits"]]
   MPP2[["scales"]][["scales"]][[3]][["limits"]] <- limits
+  
   
   TBM_paper_figure <- gridExtra::arrangeGrob(
     grobs = list(gridExtra::arrangeGrob(HSC1, top="Usp22 mRNA in WT", left="LT-HSC"), gridExtra::arrangeGrob(HSC2, top="Usp22 mRNA in KO"), 
@@ -1121,7 +1137,7 @@ cut_tree_and_get_list_of_clustered_GO_terms <- function(hclust_ward, number_of_c
   return(list_of_clustered_immune_GO_terms)
 }
 
-plot_GSEA_heatmap_global <- function(processed_GSEA_results=processed_GSEA_results, log2FC_threshold=1.2, path_to_file="plots_20220216", sample_name = "LTs", figure_height=9, rowlabel_size=6, collabel_size=8){
+plot_GSEA_heatmap_global <- function(processed_GSEA_results=processed_GSEA_results, log2FC_threshold=1.2, path_to_file="plots_20220216", sample_name = "LTs", figure_height=9, rowlabel_size=6, collabel_size=8, replicate_ID=1){
   
   basic_file_name <- paste(path_to_file, sample_name, sep="/")
   
@@ -1157,7 +1173,8 @@ plot_GSEA_heatmap_global <- function(processed_GSEA_results=processed_GSEA_resul
   positive_columns_gene_numbers <- genes_per_column[columns_with_positive_values]
   positive_sorted <- sort(positive_columns_gene_numbers, decreasing = TRUE)
   
-  global_matrix <- global_matrix[, names(c(positive_sorted, negative_sorted))]
+  global_matrix <- as.matrix(global_matrix[, names(c(positive_sorted, negative_sorted))])
+  colnames(global_matrix) <- names(c(positive_sorted, negative_sorted))
   
   color <- colorRampPalette(c("blue", "white", "red"))(100)
   myBreaks <- c(seq(min(global_matrix, na.rm = TRUE), 0, length.out=ceiling(100/2) + 1), 
@@ -1165,7 +1182,7 @@ plot_GSEA_heatmap_global <- function(processed_GSEA_results=processed_GSEA_resul
   pheatmap::pheatmap(global_matrix, na_col = "grey", color = color, breaks = myBreaks, cluster_cols = FALSE, cluster_rows = FALSE, 
                      angle_col=270, fontsize_row=rowlabel_size, fontsize_col=collabel_size, fontsize=8, 
                      main = "", 
-                     filename = paste(basic_file_name, "global_clusters_core_genes_heat.pdf", sep="_"), width = 3, height = figure_height)
+                     filename = paste(basic_file_name, paste0(paste("global_clusters_core_genes_heat", replicate_ID, sep = "_"), ".pdf"), sep="_"), width = 3, height = figure_height)
 }
 
 prepare_MPPs_for_FateID <- function(MPP_WT, MPP_KO, g2m.genes=g2m.genes, s.genes=s.genes){
@@ -1202,8 +1219,8 @@ prepare_MPPs_for_FateID <- function(MPP_WT, MPP_KO, g2m.genes=g2m.genes, s.genes
   MPP_KO <- Seurat::SCTransform(MPP_KO, verbose = FALSE, variable.features.n = NULL, variable.features.rv.th = 1.3, vars.to.regress = c("S.Score", "G2M.Score"))
   
   # from both conditions remove cell types which cannot be used to identify lineage markers via FateID ("NK", "T", "preT", "proB", "Baso", "Eo", "DC", "Mono")
-  MPP_WT <- MPP_WT[,which(!(MPP_WT$SingleR_labels %in% c("NK", "T", "preT", "proB", "Baso", "Eo", "DC", "Mono")))]
-  MPP_KO <- MPP_KO[,which(!(MPP_KO$SingleR_labels %in% c("NK", "T", "preT", "proB", "Baso", "Eo", "DC", "Mono")))]
+  MPP_WT <- MPP_WT[,which(!(MPP_WT$SingleR_labels %in% c("NK", "T", "preT", "B", "proB", "Baso", "Eo", "DC", "Mono")))]
+  MPP_KO <- MPP_KO[,which(!(MPP_KO$SingleR_labels %in% c("NK", "T", "preT", "B", "proB", "Baso", "Eo", "DC", "Mono")))]
   
   return(list(MPP_WT=MPP_WT, MPP_KO=MPP_KO))
 }
@@ -1247,7 +1264,7 @@ select_lineage_specific_genes_by_FateID <- function(MPP_WT, MPP_KO){
   return(common_features)
 }
 
-compute_diffusion_map <- function(MPP_combined, common_features){
+compute_diffusion_map <- function(MPP_combined, common_features, replicate_ID=1){
   filtered_gene_cell_matrix <- t(as.matrix(MPP_combined@assays[["SCT"]]@data[common_features,]))
   colnames(filtered_gene_cell_matrix) <- paste(rep("GENE", ncol(filtered_gene_cell_matrix)), as.character(c(1:ncol(filtered_gene_cell_matrix))), sep="_")
   filtered_gene_cell_matrix_object <- CreateDimReducObject(
@@ -1271,31 +1288,71 @@ compute_diffusion_map <- function(MPP_combined, common_features){
   # visualize initial diffusion map
   dmap_plot_unfiltered <- scatter_3d(MPP_combined.sce, dim.red.name = 'DiffusionMap', color.column="SingleR_labels", marker_size = 20, scene = '')
   
-  # remove extreme cells (some MEPs and PreCFUEs) and re-compute diffusion map
-  cells_to_keep <- rownames(reducedDim(MPP_combined.sce, 'DiffusionMap'))[which(reducedDim(MPP_combined.sce, 'DiffusionMap')[,3]>(-0.1))]
-  MPP_combined.sce <- MPP_combined.sce[,cells_to_keep]
-  MPP_combined <- MPP_combined[,cells_to_keep]
-  dmap <- destiny::DiffusionMap(reducedDim(MPP_combined.sce,'FILTERED'))
-  reducedDim(MPP_combined.sce, 'DiffusionMap') <- dmap@eigenvectors
-  dmap_plot_filtered <- scatter_3d(MPP_combined.sce, dim.red.name = 'DiffusionMap', color.column="SingleR_labels", marker_size = 20, scene = '')
+  # some extreme outliers in replicate 1 need to be removed to increase the resolution of lineage specification
+  if (is.null(replicate_ID) == FALSE){
+    if (replicate_ID==1){
+      # remove extreme cells (some MEPs and PreCFUEs) and re-compute diffusion map
+      cells_to_keep <- rownames(reducedDim(MPP_combined.sce, 'DiffusionMap'))[which(reducedDim(MPP_combined.sce, 'DiffusionMap')[,3]>(-0.1))]
+      MPP_combined.sce <- MPP_combined.sce[,cells_to_keep]
+      MPP_combined <- MPP_combined[,cells_to_keep]
+      dmap <- destiny::DiffusionMap(reducedDim(MPP_combined.sce,'FILTERED'))
+      reducedDim(MPP_combined.sce, 'DiffusionMap') <- dmap@eigenvectors
+      dmap_plot_filtered <- scatter_3d(MPP_combined.sce, dim.red.name = 'DiffusionMap', color.column="SingleR_labels", marker_size = 20, scene = '')
+    } else {
+      dmap_plot_filtered <- dmap_plot_unfiltered
+    }
+  } else {
+    dmap_plot_filtered <- dmap_plot_unfiltered
+  }
   return(list(MPP_combined=MPP_combined, MPP_combined.sce=MPP_combined.sce, dmap_plot_unfiltered=dmap_plot_unfiltered, dmap_plot_filtered=dmap_plot_filtered))
 }
 
-assign_cells_to_branches_using_slingshot <- function(MPP_combined, MPP_combined.sce){
-  # create clusters
+assign_cells_to_branches_using_slingshot <- function(MPP_combined, MPP_combined.sce, replicate_ID=1){
+  # create clusters (parameters for clustering were selected in a way to ensure meaningful curve fitting by the slingshot software)
   MPP_combined.seurat <- as.Seurat(MPP_combined.sce)
-  MPP_combined.seurat <- cluster_cells(MPP_combined.seurat, reduction = "DiffusionMap", ndims=3, knn=50, create_neighbor_object=FALSE, resolution=0.1)
+  if (replicate_ID==2){
+    MPP_combined.seurat <- cluster_cells(MPP_combined.seurat, reduction = "DiffusionMap", ndims=3, knn=50, create_neighbor_object=FALSE, resolution=0.3)
+  } else {
+    MPP_combined.seurat <- cluster_cells(MPP_combined.seurat, reduction = "DiffusionMap", ndims=3, knn=50, create_neighbor_object=FALSE, resolution=0.1)
+  }
   MPP_combined.sce@colData@listData[["Cluster1"]] <- as.character(MPP_combined.seurat$seurat_clusters)
   clusters_plot <- scatter_3d(MPP_combined.sce, dim.red.name = 'DiffusionMap', color.column="Cluster1", marker_size = 20, scene = '')
   
+  # select start and end clusters by cell type
+  SingleR_labels_marking_tip_clusters <- c("PreCFUE", "CLP", "GMP")
+  clusters_corresponding_to_SingleR_labels <- c()
+  for (index in (1:length(SingleR_labels_marking_tip_clusters))){
+    current_label <- SingleR_labels_marking_tip_clusters[index]
+    cluster_table <- table(MPP_combined.seurat$seurat_clusters[which(MPP_combined.seurat$SingleR_labels==current_label)])
+    cluster_vector <- as.vector(cluster_table)
+    names(cluster_vector) <- names(cluster_table)
+    clusters_corresponding_to_SingleR_labels <- append(clusters_corresponding_to_SingleR_labels, names(cluster_vector[order(cluster_vector, decreasing = TRUE)])[1])
+  }
+  names(clusters_corresponding_to_SingleR_labels) <- SingleR_labels_marking_tip_clusters
+  
+  if (replicate_ID==2){
+    # summarize all clusters that are not endpoint clusters
+    endpoint_clusters <- c(clusters_corresponding_to_SingleR_labels["PreCFUE"], clusters_corresponding_to_SingleR_labels["CLP"], clusters_corresponding_to_SingleR_labels["GMP"])
+    all_clusters <- as.character(unique(MPP_combined.seurat$seurat_clusters))
+    central_clusters <- all_clusters[which(!(all_clusters %in% endpoint_clusters))]
+    MPP_combined.sce$Cluster1[which(MPP_combined.sce$Cluster1 %in% central_clusters)] <- "central"
+  }
+  
   # run slingshot
   MPP_combined.sce@int_colData@listData[["reducedDims"]]@listData[["DiffusionMap_subset"]] <- MPP_combined.sce@int_colData@listData[["reducedDims"]]@listData[["DiffusionMap"]][,1:3]
-  MPP_combined.sce <- slingshot(MPP_combined.sce, clusterLabels = 'Cluster1', reducedDim = 'DiffusionMap_subset', start.clus=c("2"), end.clus=c("4", "3"), allow.breaks=TRUE)
+  MPP_combined.sce <- slingshot(MPP_combined.sce, clusterLabels = 'Cluster1', reducedDim = 'DiffusionMap_subset', start.clus=c(clusters_corresponding_to_SingleR_labels["PreCFUE"]), end.clus=c(clusters_corresponding_to_SingleR_labels["CLP"], clusters_corresponding_to_SingleR_labels["GMP"]), allow.breaks=TRUE)
   
-  # add pseudo-time to meta data
+  # assign curves to lineages
+  curve1_final_cluster <- MPP_combined.sce@int_metadata[["slingshot"]]@lineages[["Lineage1"]][length(MPP_combined.sce@int_metadata[["slingshot"]]@lineages[["Lineage1"]])]
+  curve1_final_label <- names(clusters_corresponding_to_SingleR_labels)[which(clusters_corresponding_to_SingleR_labels==curve1_final_cluster)]
   pseudotime_values_with_NAs <- slingPseudotime(MPP_combined.sce, na = TRUE)
-  MPP_combined.sce@colData@listData[["GMP_pseudotime_na"]] <- pseudotime_values_with_NAs[,"curve1"]
-  MPP_combined.sce@colData@listData[["CLP_pseudotime_na"]] <- pseudotime_values_with_NAs[,"curve2"]
+  if (curve1_final_label=="CLP"){
+    MPP_combined.sce@colData@listData[["GMP_pseudotime_na"]] <- pseudotime_values_with_NAs[,"curve2"]
+    MPP_combined.sce@colData@listData[["CLP_pseudotime_na"]] <- pseudotime_values_with_NAs[,"curve1"]
+  } else {
+    MPP_combined.sce@colData@listData[["GMP_pseudotime_na"]] <- pseudotime_values_with_NAs[,"curve1"]
+    MPP_combined.sce@colData@listData[["CLP_pseudotime_na"]] <- pseudotime_values_with_NAs[,"curve2"]
+  }
   
   # get pseudo-time of most central HSC
   HSCs <- MPP_combined.sce[, which(MPP_combined.sce$SingleR_labels=="LTHSC")]
@@ -1345,27 +1402,42 @@ assign_cells_to_branches_using_slingshot <- function(MPP_combined, MPP_combined.
 compute_per_cell_scores_of_GMP_LMPP_priming_and_plot_distribution <- function(object_for_signature=MPP_combined, 
                                                                               objects_for_scoring=list(MPP_combined.corrected_cell_numbers=MPP_combined.corrected_cell_numbers, 
                                                                                                        HSC_combined=HSC_combined),
-                                                                              path_for_plot= "plots_20220216/"){
-  MPP_combined <- object_for_signature
-  MPP_combined.WT <- MPP_combined[,which(MPP_combined$condition=="WT")]
-  WT_GMP_markers1 <- FindMarkers(MPP_combined.WT, group.by = "branches", assay = "SCT", slot = "data",ident.1 = "GMP", ident.2 = "CLP", test.use = "wilcox", min.pct = 0.05, logfc.threshold = log2(1.25))
-  WT_GMP_markers2 <- FindMarkers(MPP_combined.WT, group.by = "branches", assay = "SCT", slot = "data", ident.1 = "GMP", ident.2 = "undefined", test.use = "wilcox", min.pct = 0.05, logfc.threshold = log2(1.25))
-  WT_GMP_markers3 <- FindMarkers(MPP_combined.WT, group.by = "branches", assay = "SCT", slot = "data", ident.1 = "GMP", ident.2 = "MEP", test.use = "wilcox", min.pct = 0.05, logfc.threshold = log2(1.25))
-  WT_GMP_markers1_positve <- rownames(WT_GMP_markers1[which((WT_GMP_markers1$avg_log2FC>log2(1.25)) & (WT_GMP_markers1$p_val_adj<0.05)),])
-  WT_GMP_markers2_positve <- rownames(WT_GMP_markers2[which((WT_GMP_markers2$avg_log2FC>log2(1.25)) & (WT_GMP_markers2$p_val_adj<0.05)),])
-  WT_GMP_markers3_positve <- rownames(WT_GMP_markers3[which((WT_GMP_markers3$avg_log2FC>log2(1.25)) & (WT_GMP_markers3$p_val_adj<0.05)),])
-  GMP_signature <- intersect(intersect(WT_GMP_markers1_positve, WT_GMP_markers2_positve), WT_GMP_markers3_positve)
-  
-  WT_CLP_markers1 <- FindMarkers(MPP_combined.WT, group.by = "branches", assay = "SCT", slot = "data", ident.1 = "CLP", ident.2 = "GMP", test.use = "wilcox", min.pct = 0.05, logfc.threshold = log2(1.25))
-  WT_CLP_markers2 <- FindMarkers(MPP_combined.WT, group.by = "branches", assay = "SCT", slot = "data", ident.1 = "CLP", ident.2 = "undefined", test.use = "wilcox", min.pct = 0.05, logfc.threshold = log2(1.25))
-  WT_CLP_markers3 <- FindMarkers(MPP_combined.WT, group.by = "branches", assay = "SCT", slot = "data", ident.1 = "CLP", ident.2 = "MEP", test.use = "wilcox", min.pct = 0.05, logfc.threshold = log2(1.25))
-  WT_CLP_markers1_positve <- rownames(WT_CLP_markers1[which((WT_CLP_markers1$avg_log2FC>log2(1.25)) & (WT_CLP_markers1$p_val_adj<0.05)),])
-  WT_CLP_markers2_positve <- rownames(WT_CLP_markers2[which((WT_CLP_markers2$avg_log2FC>log2(1.25)) & (WT_CLP_markers2$p_val_adj<0.05)),])
-  WT_CLP_markers3_positve <- rownames(WT_CLP_markers3[which((WT_CLP_markers3$avg_log2FC>log2(1.25)) & (WT_CLP_markers3$p_val_adj<0.05)),])
-  CLP_signature <- intersect(intersect(WT_CLP_markers1_positve, WT_CLP_markers2_positve), WT_CLP_markers3_positve)
+                                                                              path_for_plot= "plots_20220216/",
+                                                                              replicate_ID=NULL){
+  if (replicate_ID==1){
+    if ((file.exists("GMP_signature")==FALSE) | (file.exists("CLP_signature")==FALSE)){
+      MPP_combined <- object_for_signature
+      MPP_combined.WT <- MPP_combined[,which(MPP_combined$condition=="WT")]
+      WT_GMP_markers1 <- FindMarkers(MPP_combined.WT, group.by = "branches", assay = "SCT", slot = "data",ident.1 = "GMP", ident.2 = "CLP", test.use = "wilcox", min.pct = 0.05, logfc.threshold = log2(1.25))
+      WT_GMP_markers2 <- FindMarkers(MPP_combined.WT, group.by = "branches", assay = "SCT", slot = "data", ident.1 = "GMP", ident.2 = "undefined", test.use = "wilcox", min.pct = 0.05, logfc.threshold = log2(1.25))
+      WT_GMP_markers3 <- FindMarkers(MPP_combined.WT, group.by = "branches", assay = "SCT", slot = "data", ident.1 = "GMP", ident.2 = "MEP", test.use = "wilcox", min.pct = 0.05, logfc.threshold = log2(1.25))
+      WT_GMP_markers1_positve <- rownames(WT_GMP_markers1[which((WT_GMP_markers1$avg_log2FC>log2(1.25)) & (WT_GMP_markers1$p_val_adj<0.05)),])
+      WT_GMP_markers2_positve <- rownames(WT_GMP_markers2[which((WT_GMP_markers2$avg_log2FC>log2(1.25)) & (WT_GMP_markers2$p_val_adj<0.05)),])
+      WT_GMP_markers3_positve <- rownames(WT_GMP_markers3[which((WT_GMP_markers3$avg_log2FC>log2(1.25)) & (WT_GMP_markers3$p_val_adj<0.05)),])
+      GMP_signature <- intersect(intersect(WT_GMP_markers1_positve, WT_GMP_markers2_positve), WT_GMP_markers3_positve)
+      saveRDS(object = GMP_signature, file = "GMP_signature")
+      
+      WT_CLP_markers1 <- FindMarkers(MPP_combined.WT, group.by = "branches", assay = "SCT", slot = "data", ident.1 = "CLP", ident.2 = "GMP", test.use = "wilcox", min.pct = 0.05, logfc.threshold = log2(1.25))
+      WT_CLP_markers2 <- FindMarkers(MPP_combined.WT, group.by = "branches", assay = "SCT", slot = "data", ident.1 = "CLP", ident.2 = "undefined", test.use = "wilcox", min.pct = 0.05, logfc.threshold = log2(1.25))
+      WT_CLP_markers3 <- FindMarkers(MPP_combined.WT, group.by = "branches", assay = "SCT", slot = "data", ident.1 = "CLP", ident.2 = "MEP", test.use = "wilcox", min.pct = 0.05, logfc.threshold = log2(1.25))
+      WT_CLP_markers1_positve <- rownames(WT_CLP_markers1[which((WT_CLP_markers1$avg_log2FC>log2(1.25)) & (WT_CLP_markers1$p_val_adj<0.05)),])
+      WT_CLP_markers2_positve <- rownames(WT_CLP_markers2[which((WT_CLP_markers2$avg_log2FC>log2(1.25)) & (WT_CLP_markers2$p_val_adj<0.05)),])
+      WT_CLP_markers3_positve <- rownames(WT_CLP_markers3[which((WT_CLP_markers3$avg_log2FC>log2(1.25)) & (WT_CLP_markers3$p_val_adj<0.05)),])
+      CLP_signature <- intersect(intersect(WT_CLP_markers1_positve, WT_CLP_markers2_positve), WT_CLP_markers3_positve)
+      saveRDS(object = CLP_signature, file = "CLP_signature")
+    } else {
+      GMP_signature <- readRDS(file = "GMP_signature")
+      CLP_signature <- readRDS(file = "CLP_signature")
+    }
+  } else {
+    GMP_signature <- readRDS(file = "GMP_signature")
+    CLP_signature <- readRDS(file = "CLP_signature")
+  }
   
   MPP_combined.corrected_cell_numbers <- objects_for_scoring[["MPP_combined.corrected_cell_numbers"]]
+  
   HSC_combined <- objects_for_scoring[["HSC_combined"]]
+  
   
   # compute signature scores for MPPs and rename braches and set levels of categorical variables for plotting
   MPP_combined.corrected_cell_numbers <- AddModuleScore(
@@ -1388,7 +1460,8 @@ compute_per_cell_scores_of_GMP_LMPP_priming_and_plot_distribution <- function(ob
   MPP_combined.corrected_cell_numbers$branches_violin_plot[which(MPP_combined.corrected_cell_numbers$branches_violin_plot=="MEP")] <- "MEP-biased MPPs"
   MPP_combined.corrected_cell_numbers$branches_violin_plot[which(MPP_combined.corrected_cell_numbers$branches_violin_plot=="undefined")] <- "unbiased MPPs"
   
-  # compute signature scores for HSCs and rename braches and set levels of categorical variables for plotting
+  
+  # compute signature scores for HSCs and rename branches and set levels of categorical variables for plotting
   HSC_combined <- AddModuleScore(
     object=HSC_combined,
     features=list(GMP_signature, CLP_signature),
@@ -1405,6 +1478,7 @@ compute_per_cell_scores_of_GMP_LMPP_priming_and_plot_distribution <- function(ob
   HSC_combined$sample[which(HSC_combined$sample=="LTHSC")] <- "LT-HSCs"
   HSC_combined$sample[which(HSC_combined$sample=="STHSC")] <- "ST-HSCs"
   HSC_combined$sample <- factor(HSC_combined$sample, levels = c("LT-HSCs", "ST-HSCs"))
+  
   
   # create violin plots
   Vln_Plot_MPPs_GMPsignature <- VlnPlot(
@@ -1512,6 +1586,8 @@ compute_per_cell_scores_of_GMP_LMPP_priming_and_plot_distribution <- function(ob
   
   Vln_Plot_HSCs_LMPPsignature_prep <- Vln_Plot_HSCs_LMPPsignature + ggtitle("") + theme(axis.text.x = element_text(angle = 270, size=8), axis.title.x = element_blank(), plot.title = element_text(size=10)) +
     stat_compare_means(aes(group = split), method="wilcox.test", paired=FALSE, label = "p.signif", hide.ns=FALSE)
+  
+  
   
   # group plots by signature Vln_Plot_MPPs_GMPsignature, Vln_Plot_MPPs_LMPPsignature, Vln_Plot_HSCs_GMPsignature, Vln_Plot_HSCs_LMPPsignature
   combined_plot_GMP <- Vln_Plot_MPPs_GMPsignature_prep + Vln_Plot_HSCs_GMPsignature_prep + plot_layout(guides = 'collect', ncol = 1, nrow = 2)
@@ -1744,46 +1820,6 @@ create_barplot_with_percentage_of_cycling_LTs <- function(LTHSC_combined=LTHSC_c
   )
 }
 
-plot_cell_cycle_changes_in_barplot_LTs <- function(annotated_object=LTHSC_combined, path_to_plots=folder_with_plots, width = 5, height = 8){
-  matrix_diff_cycle <- data.frame(condition=c(rep("WT", 4), rep("KO", 4)),
-                                  phase=c(rep(c("G1", "G1S", "S", "G2M"), 2)),
-                                  percentage=rep(0, 8))
-  
-  for (index in (1:nrow(matrix_diff_cycle))){
-    condition <- matrix_diff_cycle[index, "condition"]
-    phase <- matrix_diff_cycle[index, "phase"]
-    number_of_cells_in_current_condition <- length(which(annotated_object$condition==condition))
-    matrix_diff_cycle[index, "percentage"] <- (length(which((annotated_object$condition==condition) & (annotated_object$new_Phase==phase)))/number_of_cells_in_current_condition)*100
-  }
-  
-  matrix_diff_cycle[,"condition"] <- factor(matrix_diff_cycle[,"condition"], levels = c("WT", "KO"))
-  matrix_diff_cycle[,"phase"] <- factor(matrix_diff_cycle[,"phase"], levels = c("G1", "G1S", "S", "G2M"))
-  
-  bar_plot <- ggplot(matrix_diff_cycle,
-                     aes(x = phase,
-                         y = percentage,
-                         color=condition)) + 
-    geom_bar(stat = "identity",
-             fill="white", width = 0.4, position = position_dodge(width = 0.8)) +
-    ylab("% of LT-HSCs") +
-    scale_color_manual(values=c("black", "red")) + 
-    theme_classic()
-  
-  ggsave(
-    paste(path_to_plots, "LTs_cell_cycle_barplot.pdf", sep="/"),
-    plot = bar_plot,
-    device = NULL,
-    path = NULL,
-    scale = 1,
-    width = width,
-    height = height,
-    units = "cm",
-    dpi = 800,
-    limitsize = TRUE,
-    bg = NULL
-  )
-}
-
 correct_MPP_embedding_for_differential_ditribution_of_conditions <- function(MPP_combined=MPP_combined, MPP_combined.sce=MPP_combined.sce, numbers_of_direct_neighbors_to_consider=1){
   # add diffusion map coordinates to seurat object
   temp_seurat <- as.Seurat(MPP_combined.sce)
@@ -1944,6 +1980,7 @@ plot_differential_expression_of_signatures <- function(signature_genes=GMP_signa
   }
   colnames(matrix_deg_signature_MPPs) <- c("unbiased MPPs", "LMPPs", "GMP-biased MPPs", "MEP-biased MPPs")
   
+  
   matrix_deg_signature_HSCs <- matrix(0, nrow=length(signature_genes), ncol = length(unique(HSC_combined$sample)))
   colnames(matrix_deg_signature_HSCs) <- c("LT-HSCs", "ST-HSCs")
   rownames(matrix_deg_signature_HSCs) <- signature_genes
@@ -1972,7 +2009,11 @@ plot_differential_expression_of_signatures <- function(signature_genes=GMP_signa
     }
   }
   
+  
+  
   combined_matrix <- cbind(matrix_deg_signature_HSCs, matrix_deg_signature_MPPs)
+  
+  
   
   color <- colorRampPalette(c("blue", "white", "red"))(100)
   myBreaks <- c(seq(min(combined_matrix, na.rm = TRUE), 0, length.out=ceiling(100/2) + 1), 
@@ -1984,7 +2025,7 @@ plot_differential_expression_of_signatures <- function(signature_genes=GMP_signa
   
 }
 
-run_GSEA_and_group_significant_GO_terms_by_overlap_of_gene_sets <- function(seurat_object=MPP_combined.corrected_cell_numbers, significance_threshold=0.05, edge_threshold_Jaccard=0.3, min_number_of_leading_edge_genes=100){
+run_GSEA_and_group_significant_GO_terms_by_overlap_of_gene_sets <- function(seurat_object=MPP_combined.corrected_cell_numbers, significance_threshold=0.05, edge_threshold_Jaccard=0.3, min_number_of_leading_edge_genes=100, replicate_ID=NULL, cell_type=NULL, reuse_min_number_of_leading_edge_genes=NULL){
   GSEA_results_sampled <- run_GSEA(seurat_object=seurat_object, min.pct = 0.1, ont_category="BP", minGSSize = 10, maxGSSize = 800, pvalueCutoff = 0.05, showCategory=50)
   
   results_readable <- setReadable(GSEA_results_sampled[["results"]], 'org.Mm.eg.db', 'ENTREZID')
@@ -2005,6 +2046,36 @@ run_GSEA_and_group_significant_GO_terms_by_overlap_of_gene_sets <- function(seur
   
   number_of_unique_genes_per_group <- get_number_of_core_genes_per_GO_term_group(GO_term_groups=GO_term_groups, core_genes_for_each_GO_term=core_genes_for_each_GO_term)
   
+  size_of_GO_term_groups <- unlist(lapply(GO_term_groups, length))
+  number_of_leading_edge_genes_per_group <- number_of_unique_genes_per_group
+  
+  if (replicate_ID == 1){
+    # save number of GO terms in largest group among those groups that will be excluded in the next step
+    maximum_size_of_excluded_group_rep1 <- max(size_of_GO_term_groups[which(!(number_of_leading_edge_genes_per_group > min_number_of_leading_edge_genes))])
+    saveRDS(object = maximum_size_of_excluded_group_rep1, file = paste0(paste("maximum_size_of_excluded_group_rep1", cell_type, sep = "_"), ".rds"))
+  }
+  
+  if (replicate_ID != 1){
+    if (reuse_min_number_of_leading_edge_genes == TRUE){
+      min_number_of_leading_edge_genes <- readRDS(file=paste0(paste("min_number_of_leading_edge_genes", replicate_ID, sep = "_"), ".rds"))
+    } else {
+      # find a value for min_number_of_leading_edge_genes that causes retention of GO groups of similar size compared to replicate1
+      maximum_size_of_excluded_group_rep1 <- readRDS(file = paste0(paste("maximum_size_of_excluded_group_rep1", cell_type, sep = "_"), ".rds"))
+      threshold_values <- c(20:150)
+      max_excluded_group_size <- c()
+      for (index in (1:length(threshold_values))){
+        current_threshold <- threshold_values[index]
+        if (length(which(!(number_of_leading_edge_genes_per_group > current_threshold)))>0){
+          max_excluded_group_size <- append(max_excluded_group_size, max(size_of_GO_term_groups[which(!(number_of_leading_edge_genes_per_group > current_threshold))]))
+        } else {
+          max_excluded_group_size <- append(max_excluded_group_size, 0)
+        }
+      }
+      min_number_of_leading_edge_genes <- max(threshold_values[which(max_excluded_group_size <= maximum_size_of_excluded_group_rep1)])
+      saveRDS(object = min_number_of_leading_edge_genes, file = paste0(paste("min_number_of_leading_edge_genes", replicate_ID, sep = "_"), ".rds"))
+    }
+  }
+  
   GO_term_groups_cut_global <- GO_term_groups[which(number_of_unique_genes_per_group > min_number_of_leading_edge_genes)]
   
   return(list(results_readable=results_readable, GO_terms_to_consider=GO_terms_to_consider,
@@ -2015,7 +2086,7 @@ run_GSEA_and_group_significant_GO_terms_by_overlap_of_gene_sets <- function(seur
               GSEA_results_sampled=GSEA_results_sampled))
 }
 
-plot_filtered_GO_network <- function(processed_GSEA_results=processed_GSEA_results, min_edge=0.3, path_to_plots="plots_20220216", sample_name="MPPs", use_old_coordinates=FALSE, save_new_coordinates=FALSE, file_name_new_coordinates=NULL, file_name_old_coordinates=NULL){
+plot_filtered_GO_network <- function(processed_GSEA_results=processed_GSEA_results, min_edge=0.3, path_to_plots="plots_20220216", sample_name="MPPs", use_old_coordinates=FALSE, save_new_coordinates=FALSE, file_name_new_coordinates=NULL, file_name_old_coordinates=NULL, replicate_ID=1){
   basic_file_name <- paste(path_to_plots, sample_name, sep="/")
   # create filtered gsea-results object
   retained_GO_terms <- unique(unlist(processed_GSEA_results[["GO_term_groups_cut_global"]]))
@@ -2037,7 +2108,7 @@ plot_filtered_GO_network <- function(processed_GSEA_results=processed_GSEA_resul
   }
   
   ggsave(
-    paste(basic_file_name, "GO_network_labeled.pdf", sep="_"),
+    paste(basic_file_name, paste0(paste("GO_network_labeled", replicate_ID, sep = "_"), ".pdf"), sep="_"),
     plot = grouped_GO_terms_plot_labeled,
     device = NULL,
     path = NULL,
@@ -2051,7 +2122,7 @@ plot_filtered_GO_network <- function(processed_GSEA_results=processed_GSEA_resul
   )
   
   coordinates_of_labeled_plot <- data.frame(x=grouped_GO_terms_plot_labeled[["data"]][["x"]], y=grouped_GO_terms_plot_labeled[["data"]][["y"]])
-
+  
   if(save_new_coordinates==TRUE){
     saveRDS(object=coordinates_of_labeled_plot, file=file_name_new_coordinates)
   }
@@ -2068,7 +2139,7 @@ plot_filtered_GO_network <- function(processed_GSEA_results=processed_GSEA_resul
   grouped_GO_terms_plot[["data"]][["y"]] <- coordinates_of_labeled_plot[,"y"]
   
   ggsave(
-    paste(basic_file_name, "GO_network_unlabeled.pdf", sep="_"),
+    paste(basic_file_name, paste0(paste("GO_network_unlabeled", replicate_ID, sep = "_"), ".pdf"), sep="_"),
     plot = grouped_GO_terms_plot,
     device = NULL,
     path = NULL,
@@ -2135,14 +2206,14 @@ plot_GSEA_heatmap_subcluster <- function(processed_GSEA_results=processed_GSEA_r
     immune_matrix[which(!(rownames(immune_matrix) %in% current_core_genes)), index] <- NA
   }
   
-#  mean_values_of_columns <- apply(immune_matrix, 2, FUN=function(x)mean(x, na.rm=TRUE))
+  #  mean_values_of_columns <- apply(immune_matrix, 2, FUN=function(x)mean(x, na.rm=TRUE))
   genes_per_column <- apply(immune_matrix, 2, FUN=function(x)(length(which(!is.na(x)))))
-#  columns_with_negative_values <- which(mean_values_of_columns<0)
-#  negative_columns_gene_numbers <- genes_per_column[columns_with_negative_values]
-#  negative_sorted <- sort(negative_columns_gene_numbers, decreasing = FALSE)
+  #  columns_with_negative_values <- which(mean_values_of_columns<0)
+  #  negative_columns_gene_numbers <- genes_per_column[columns_with_negative_values]
+  #  negative_sorted <- sort(negative_columns_gene_numbers, decreasing = FALSE)
   
-#  columns_with_positive_values <- which(mean_values_of_columns>0)
-#  positive_columns_gene_numbers <- genes_per_column[columns_with_positive_values]
+  #  columns_with_positive_values <- which(mean_values_of_columns>0)
+  #  positive_columns_gene_numbers <- genes_per_column[columns_with_positive_values]
   genes_per_column_sorted <- sort(genes_per_column, decreasing = TRUE)
   
   immune_matrix <- immune_matrix[, names(genes_per_column_sorted)]
@@ -2155,5 +2226,297 @@ plot_GSEA_heatmap_subcluster <- function(processed_GSEA_results=processed_GSEA_r
                      filename = paste(path_to_plot, "GO_heatmap_immune.pdf", sep="/"), width = 2, height = 7)
   
 }
+
+# replicate-specific parameters: 
+load_replicate_parameters <- function(replicate=1){
+  if (replicate==1){
+    parameters <- list(replicate=1,
+                       minimum_number_of_genes_per_cell_MPP=2500,
+                       minimum_number_of_genes_per_cell_LT=2500,
+                       minimum_number_of_genes_per_cell_ST=2500,
+                       file_name_GO_network_coordinates_MPP="MPPs_emapplot_coordinates_20220316",
+                       file_name_GO_network_coordinates_LT="LTs_emapplot_coordinates_20220316",
+                       parameter_file_for_3D_plot_MPP="3d_scatter_parameters_20220312.rds")
+  }
+  if (replicate==2){
+    parameters <- list(replicate=2,
+                       minimum_number_of_genes_per_cell_MPP=1500,
+                       minimum_number_of_genes_per_cell_LT=1500,
+                       minimum_number_of_genes_per_cell_ST=1500,
+                       file_name_GO_network_coordinates_MPP="MPPs_emapplot_coordinates_2",
+                       file_name_GO_network_coordinates_LT="LTs_emapplot_coordinates_2",
+                       parameter_file_for_3D_plot_MPP="3d_scatter_parameters_2.rds")
+  }
+  return(parameters)
+}
+
+# make gene length function reproducible
+getGeneLengthAndGCContent_reproducible <- function (id, org, mode = c("biomart", "org.db")) 
+{
+  id.type <- .autoDetectGeneIdType(id[1])
+  if (is.na(id.type)) 
+    stop("Only ENTREZ or ENSEMBL gene IDs are supported.")
+  mode <- match.arg(mode)
+  inp.id <- id
+  if (mode == "org.db") {
+    txdb.pkg <- .org2pkg(org, type = "TxDb")
+    .isAvailable(txdb.pkg, type = "TxDb")
+    bsgen.pkg <- .org2pkg(org, type = "BSgenome")
+    .isAvailable(bsgen.pkg, type = "BSgenome")
+    txdb.spl <- unlist(strsplit(txdb.pkg, "\\."))
+    txdb.id.type <- txdb.spl[length(txdb.spl)]
+    if (txdb.id.type == "ensGene") {
+      txdb.id.type <- "ensembl"
+    }
+    else if (txdb.id.type == "knownGene") {
+      txdb.id.type <- "entrez"
+    }
+    else if (txdb.id.type == "sgdGene") {
+      txdb.id.type <- "sgd"
+    }
+    else {
+      stop(paste("TxDb does not use ENSEMBL or ENTREZ gene IDs"))
+    }
+    if (id.type != txdb.id.type) {
+      orgdb.pkg <- .org2pkg(org)
+      .isAvailable(orgdb.pkg)
+      orgdb.pkg <- get(orgdb.pkg)
+      id.map <- mapIds(orgdb.pkg, keys = id, column = ifelse(id.type == 
+                                                               "entrez", "ENSEMBL", "ENTREZID"), keytype = ifelse(id.type == 
+                                                                                                                    "entrez", "ENTREZID", "ENSEMBL"))
+      id <- id.map[!is.na(id.map)]
+    }
+    txdb.pkg <- get(txdb.pkg)
+    coords <- exonsBy(txdb.pkg, by = "gene")
+    id <- id[id %in% names(coords)]
+    coords <- reduce(coords[id])
+    len <- sum(width(coords))
+    bsgen.pkg <- get(bsgen.pkg)
+    seqs <- getSeq(bsgen.pkg, coords)
+    af <- alphabetFrequency(unlist(seqs, use.names = FALSE), 
+                            baseOnly = TRUE, as.prob = TRUE)
+    gc.cont <- mean(relist(rowSums(af[, c("C", "G")]), seqs))
+  }
+  else {
+    id.type <- paste0(id.type, ifelse(id.type == "entrez", 
+                                      "gene", "_gene_id"))
+    message("Connecting to BioMart ...")
+    ensembl <- useMart("ENSEMBL_MART_ENSEMBL", host = "https://dec2021.archive.ensembl.org")
+    ds <- listDatasets(ensembl)[, "dataset"]
+    ds <- grep(paste0("^", org), ds, value = TRUE)
+    if (length(ds) == 0) 
+      stop(paste("Mart not found for:", org))
+    else if (length(ds) > 1) {
+      message("Found several marts")
+      sapply(ds, function(d) message(paste(which(ds == 
+                                                   d), d, sep = ": ")))
+      n <- readline(paste0("Choose mart (1-", length(ds), 
+                           ") : "))
+      ds <- ds[as.integer(n)]
+    }
+    ensembl <- useDataset(ds, mart = ensembl)
+    message(paste0("Downloading sequence", ifelse(length(id) > 
+                                                    1, "s", ""), " ..."))
+    if (length(id) > 100) 
+      message("This may take a few minutes ...")
+    attrs <- c(id.type, "ensembl_exon_id", "chromosome_name", 
+               "exon_chrom_start", "exon_chrom_end")
+    coords <- getBM(filters = id.type, attributes = attrs, 
+                    values = id, mart = ensembl)
+    id <- unique(coords[, id.type])
+    coords <- GRangesList(sapply(id, function(i) {
+      i.coords <- coords[coords[, 1] == i, 3:5]
+      g <- GRanges(i.coords[, 1], IRanges(i.coords[, 2], 
+                                          i.coords[, 3]))
+      return(g)
+    }), compress = FALSE)
+    coords <- reduce(coords)
+    len <- sum(width(coords))
+    sel <- c(id.type, "start_position", "end_position")
+    gene.pos <- getBM(attributes = sel, filters = id.type, 
+                      values = id, mart = ensembl)
+    gene.seqs <- getSequence(id = id, type = id.type, seqType = "gene_exon_intron", 
+                             mart = ensembl)
+    gc.cont <- sapply(id, function(i) {
+      ecoords <- coords[[i]]
+      gpos <- gene.pos[gene.pos[, id.type] == i, c("start_position", 
+                                                   "end_position")]
+      gseq <- DNAString(gene.seqs[gene.seqs[, id.type] == 
+                                    i, "gene_exon_intron"])
+      start <- start(ranges(ecoords)) - gpos[1, 1] + 1
+      end <- end(ranges(ecoords)) - gpos[1, 1] + 1
+      eseq <- gseq[IRanges(start, end)]
+      gc.cont <- sum(alphabetFrequency(eseq, as.prob = TRUE)[c("C", 
+                                                               "G")])
+      return(gc.cont)
+    })
+  }
+  res <- cbind(len, gc.cont)
+  colnames(res) <- c("length", "gc")
+  rownames(res) <- id
+  if (mode == "org.db") 
+    if (id.type != txdb.id.type) 
+      rownames(res) <- names(id)
+  not.found <- !(inp.id %in% rownames(res))
+  na.col <- rep(NA, sum(not.found))
+  rn <- c(rownames(res), inp.id[not.found])
+  res <- rbind(res, cbind(na.col, na.col))
+  rownames(res) <- rn
+  res <- res[inp.id, ]
+  return(res)
+}
+environment(getGeneLengthAndGCContent_reproducible) <- asNamespace('EDASeq')
+
+# construct paths for saving and reading intermediate results
+get_paths_for_intermediate_results <- function(replicate_ID = NULL, paths_to_results=NULL, prefixMPPs="MPPs_after_annotation", prefixTBM="TBM_after_annotation", prefixHSC="LT_ST_after_merge"){
+  MPP_WT_path <- paste0(paste(paste0(paths_to_results, replicate_ID), prefixMPPs, sep="/"), "_WT.rds")
+  MPP_KO_path <- paste0(paste(paste0(paths_to_results, replicate_ID), prefixMPPs, sep="/"), "_KO.rds")
+  MPP_combined_after_slingshot <- paste0(paste0(paths_to_results, replicate_ID), "/MPP_combined_after_slingshot.rds")
+  MPP_combined.sce_after_slingshot <- paste0(paste0(paths_to_results, replicate_ID), "/MPP_combined.sce_after_slingshot.rds")
+  MPP_combined_after_sampling <- paste0(paste0(paths_to_results, replicate_ID), "/MPP_combined_after_sampling.rds")
+  MPP_combined.sce_after_sampling <- paste0(paste0(paths_to_results, replicate_ID), "/MPP_combined.sce_after_sampling.rds")
+  TBM_combined_path <- paste0(paste(paste0(paths_to_results, replicate_ID), prefixTBM, sep="/"), ".rds")
+  HSC_combined_path <- paste0(paste(paste0(paths_to_results, replicate_ID), prefixHSC, sep="/"), ".rds")
+  return(list(MPP_WT_path=MPP_WT_path,
+              MPP_KO_path=MPP_KO_path,
+              TBM_combined_path=TBM_combined_path,
+              MPP_combined_after_slingshot=MPP_combined_after_slingshot,
+              MPP_combined.sce_after_slingshot=MPP_combined.sce_after_slingshot,
+              MPP_combined_after_sampling=MPP_combined_after_sampling,
+              MPP_combined.sce_after_sampling=MPP_combined.sce_after_sampling,
+              HSC_combined_path=HSC_combined_path))
+}
+
+create_seurat_object_with_gene_detection_rates_in_MPP_subsets <- function(MPP=NULL){
+  MPP@meta.data[["sample"]] <- paste(paste(MPP$condition, MPP$experiment, sep="_"), MPP$branches, sep = "_")
+  sample_names <- as.character(unique(MPP$sample))
+  detection_rate_matrix <- matrix(0, nrow = nrow(MPP@assays$RNA@counts), ncol=length(sample_names))
+  rownames(detection_rate_matrix) <- rownames(MPP@assays$RNA@counts)
+  colnames(detection_rate_matrix) <- sample_names
+  for (index in (1:length(sample_names))){
+    current_sample <- sample_names[index]
+    
+    number_of_cells_in_current_sample <- length(which(MPP$sample == current_sample))
+    numbers_of_zeros <- proxyC::rowZeros(MPP@assays$RNA@counts[, which(MPP$sample == current_sample)])
+    numbers_of_detections <- number_of_cells_in_current_sample - numbers_of_zeros
+    detection_rate_vector <- numbers_of_detections / number_of_cells_in_current_sample
+    detection_rate_matrix[, current_sample] <- detection_rate_vector
+  }
+  
+  Seurat_detection_MPP <- CreateSeuratObject(counts=detection_rate_matrix)
+  list_with_substrings = strsplit(colnames(Seurat_detection_MPP), '_')
+  condition_str <- unlist(lapply(list_with_substrings, FUN=function(x){x[1]}))
+  experiment_str <- unlist(lapply(list_with_substrings, FUN=function(x){x[2]}))
+  branch_str <- unlist(lapply(list_with_substrings, FUN=function(x){x[3]}))
+  Seurat_detection_MPP@meta.data[["condition"]] <- condition_str
+  Seurat_detection_MPP@meta.data[["experiment"]] <- experiment_str
+  Seurat_detection_MPP@meta.data[["branches"]] <- branch_str
+  Seurat_detection_MPP$condition <- factor(Seurat_detection_MPP$condition, levels = c("WT", "KO"))
+  
+  # rename MPP branches
+  Seurat_detection_MPP$branches[which(Seurat_detection_MPP$branches=="CLP")] <- "LMPP"
+  Seurat_detection_MPP$branches[which(Seurat_detection_MPP$branches=="GMP")] <- "GMP-biased MPP"
+  Seurat_detection_MPP$branches[which(Seurat_detection_MPP$branches=="MEP")] <- "MEP-biased MPP"
+  Seurat_detection_MPP$branches[which(Seurat_detection_MPP$branches=="undefined")] <- "unbiased MPP"
+  
+  return(Seurat_detection_MPP)
+}
+
+create_seurat_object_with_average_expression_per_gene_in_MPP_subsets <- function(MPP=NULL){
+  MPP@meta.data[["sample"]] <- paste(paste(MPP$condition, MPP$experiment, sep="_"), MPP$branches, sep = "_")
+  sample_names <- as.character(unique(MPP$sample))
+  average_expression_matrix <- matrix(0, nrow = nrow(MPP@assays$SCT@counts), ncol=length(sample_names))
+  rownames(average_expression_matrix) <- rownames(MPP@assays$SCT@counts)
+  colnames(average_expression_matrix) <- sample_names
+  for (index in (1:length(sample_names))){
+    current_sample <- sample_names[index]
+    sum_of_all_expression_values <- rowSums(MPP@assays$SCT@counts[, which(MPP$sample == current_sample)])
+    average_expression_matrix[, current_sample] <- sum_of_all_expression_values/length(which(MPP$sample == current_sample))
+  }
+  
+  Seurat_detection_MPP <- CreateSeuratObject(counts=average_expression_matrix)
+  list_with_substrings = strsplit(colnames(Seurat_detection_MPP), '_')
+  condition_str <- unlist(lapply(list_with_substrings, FUN=function(x){x[1]}))
+  experiment_str <- unlist(lapply(list_with_substrings, FUN=function(x){x[2]}))
+  branch_str <- unlist(lapply(list_with_substrings, FUN=function(x){x[3]}))
+  Seurat_detection_MPP@meta.data[["condition"]] <- condition_str
+  Seurat_detection_MPP@meta.data[["experiment"]] <- experiment_str
+  Seurat_detection_MPP@meta.data[["branches"]] <- branch_str
+  Seurat_detection_MPP$condition <- factor(Seurat_detection_MPP$condition, levels = c("WT", "KO"))
+  
+  # rename MPP branches
+  Seurat_detection_MPP$branches[which(Seurat_detection_MPP$branches=="CLP")] <- "LMPP"
+  Seurat_detection_MPP$branches[which(Seurat_detection_MPP$branches=="GMP")] <- "GMP-biased MPP"
+  Seurat_detection_MPP$branches[which(Seurat_detection_MPP$branches=="MEP")] <- "MEP-biased MPP"
+  Seurat_detection_MPP$branches[which(Seurat_detection_MPP$branches=="undefined")] <- "unbiased MPP"
+  
+  return(Seurat_detection_MPP)
+}
+
+
+compare_expression_of_selected_genes_in_MPP_between_WT_and_KO_mice <- function(seurat_object=NULL, gene_set=NULL, folder_with_plots=NULL, 
+                                                                               plot_width=25, plot_hight=15, 
+                                                                               y_axis_label="% of cells with detectable mRNA", 
+                                                                               file_name="gene_plots_patch_NK_TFs.pdf",
+                                                                               mode="detection_frequency",
+                                                                               colnumber_panel=NULL,
+                                                                               rownumber_panel=NULL,
+                                                                               pt_size=1.2,
+                                                                               line_thickness=0.4){
+  genes_to_visualize <- gene_set
+  list_with_gene_plots <- list()
+  for (index in (1:length(genes_to_visualize))){
+    current_gene <- genes_to_visualize[index]
+    if ((current_gene %in% rownames(seurat_object@assays$RNA@counts)) == FALSE){
+      print(paste(current_gene, "not in data", sep = " "))
+      next
+    }
+    data <- seurat_object@meta.data[, c("branches", "condition", "experiment")]
+    data[, "gene"] <- seurat_object@assays$RNA@counts[current_gene,]
+    data[, "pair"] <- substr(rownames(data), start = 4, stop = nchar(rownames(data)))
+    if (mode=="detection_frequency"){
+      data$gene <- data$gene*100
+    }
+    data$branches <- as.character(data$branches)
+    data$branches[which(data$branches=="GMP-biased MPP")] <- "GMP-\nbiased\nMPP"
+    data$branches[which(data$branches=="MEP-biased MPP")] <- "MEP-\nbiased\nMPP"
+    data$branches[which(data$branches=="unbiased MPP")] <- "unbiased\nMPP"
+    data$branches[which(data$branches=="LT-HSCs")] <- "LT"
+    data$branches[which(data$branches=="ST-HSCs")] <- "ST"
+    data$branches[which(data$branches=="Granulocytes")] <- "Granulo-\ncytes"
+    data$branches[which(data$branches=="Monocytes")] <- "Mono-\ncytes"
+    data$branches <- factor(data$branches, levels = c("LT", "ST", "GMP-\nbiased\nMPP", "LMPP", "MEP-\nbiased\nMPP", "unbiased\nMPP",
+                                                      "Granulo-\ncytes", "Mono-\ncytes", "DC", "B-cells", "T", "NK", "EryBl", "Retic"))
+    
+    p <- ggpaired(data, x = "condition", y = "gene",
+                  color = "condition", palette = c("black", "red"), 
+                  line.color = "gray", line.size = line_thickness,
+                  facet.by = "branches", short.panel.labs = FALSE, id="pair")+ 
+      ylab(y_axis_label)+ggtitle(current_gene)+
+      geom_point(aes(shape=experiment, color=condition), size=pt_size)+scale_shape_manual(values=c(17, 16))+#scale_size_manual(values = c(pt_size, pt_size))+
+      theme(axis.title.x = element_blank(), axis.title.y = element_text(size = 8), axis.text.x = element_text(size=8), 
+            axis.text.y = element_text(size=8), plot.title = element_text(hjust = 0.5), legend.position="right")
+    p <- facet(p, facet.by = "branches", nrow=1, ncol=length(unique(data$branches)), panel.labs.font = list(face = NULL, color = NULL, size = 8, angle = 0))
+    p[["layers"]][[1]] <- NULL
+    final_plot <- p # + stat_compare_means(method="wilcox.test", method.args = list(alternative = "two.sided"), label = "p.format", paired = TRUE, size=2) + stat_summary(fun=mean, geom="point", shape=23, size=4)
+    list_with_gene_plots <- list.append(list_with_gene_plots, final_plot)
+  }
+  gene_plots_patch <- wrap_plots(list_with_gene_plots, guides = 'collect', ncol=colnumber_panel, nrow=rownumber_panel)
+  ggsave(
+    paste(folder_with_plots, file_name, sep="/"),
+    plot = gene_plots_patch,
+    device = NULL,
+    path = NULL,
+    scale = 1,
+    width = plot_width,
+    height = plot_hight,
+    units = "cm",
+    dpi = 800,
+    limitsize = TRUE,
+    bg = NULL
+  )
+}
+
+
 
 

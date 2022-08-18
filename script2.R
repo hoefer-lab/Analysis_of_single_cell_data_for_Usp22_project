@@ -2422,8 +2422,12 @@ create_seurat_object_with_gene_detection_rates_in_MPP_subsets <- function(MPP=NU
   return(Seurat_detection_MPP)
 }
 
-create_seurat_object_with_average_expression_per_gene_in_MPP_subsets <- function(MPP=NULL){
-  MPP@meta.data[["sample"]] <- paste(paste(MPP$condition, MPP$experiment, sep="_"), MPP$branches, sep = "_")
+create_seurat_object_with_average_expression_per_gene_in_MPP_subsets <- function(MPP=NULL, merge_sample_subsets=FALSE){
+  if (merge_sample_subsets==FALSE){
+    MPP@meta.data[["sample"]] <- paste(paste(MPP$condition, MPP$experiment, sep="_"), MPP$branches, sep = "_")
+  } else {
+    MPP@meta.data[["sample"]] <- paste(paste(MPP$condition, MPP$experiment, sep="_"), MPP$sample, sep = "_")
+  }
   sample_names <- as.character(unique(MPP$sample))
   average_expression_matrix <- matrix(0, nrow = nrow(MPP@assays$SCT@counts), ncol=length(sample_names))
   rownames(average_expression_matrix) <- rownames(MPP@assays$SCT@counts)
@@ -2445,13 +2449,17 @@ create_seurat_object_with_average_expression_per_gene_in_MPP_subsets <- function
   Seurat_detection_MPP$condition <- factor(Seurat_detection_MPP$condition, levels = c("WT", "KO"))
   
   # rename MPP branches
-  Seurat_detection_MPP$branches[which(Seurat_detection_MPP$branches=="CLP")] <- "LMPP"
-  Seurat_detection_MPP$branches[which(Seurat_detection_MPP$branches=="GMP")] <- "GMP-biased MPP"
-  Seurat_detection_MPP$branches[which(Seurat_detection_MPP$branches=="MEP")] <- "MEP-biased MPP"
-  Seurat_detection_MPP$branches[which(Seurat_detection_MPP$branches=="undefined")] <- "unbiased MPP"
-  
+  if (merge_sample_subsets==FALSE){
+    Seurat_detection_MPP$branches[which(Seurat_detection_MPP$branches=="CLP")] <- "LMPP"
+    Seurat_detection_MPP$branches[which(Seurat_detection_MPP$branches=="GMP")] <- "GMP-biased MPP"
+    Seurat_detection_MPP$branches[which(Seurat_detection_MPP$branches=="MEP")] <- "MEP-biased MPP"
+    Seurat_detection_MPP$branches[which(Seurat_detection_MPP$branches=="undefined")] <- "unbiased MPP"
+  } else {
+    Seurat_detection_MPP$branches[which(Seurat_detection_MPP$branches %in% c("CLP", "GMP", "MEP", "undefined"))] <- "MPP"
+  }
   return(Seurat_detection_MPP)
 }
+
 
 
 compare_expression_of_selected_genes_in_MPP_between_WT_and_KO_mice <- function(seurat_object=NULL, gene_set=NULL, folder_with_plots=NULL, 
@@ -2485,7 +2493,7 @@ compare_expression_of_selected_genes_in_MPP_between_WT_and_KO_mice <- function(s
     data$branches[which(data$branches=="ST-HSCs")] <- "ST"
     data$branches[which(data$branches=="Granulocytes")] <- "Granulo-\ncytes"
     data$branches[which(data$branches=="Monocytes")] <- "Mono-\ncytes"
-    data$branches <- factor(data$branches, levels = c("LT", "ST", "GMP-\nbiased\nMPP", "LMPP", "MEP-\nbiased\nMPP", "unbiased\nMPP",
+    data$branches <- factor(data$branches, levels = c("LT", "ST", "MPP", "GMP-\nbiased\nMPP", "LMPP", "MEP-\nbiased\nMPP", "unbiased\nMPP",
                                                       "Granulo-\ncytes", "Mono-\ncytes", "DC", "B-cells", "T", "NK", "EryBl", "Retic"))
     
     p <- ggpaired(data, x = "condition", y = "gene",

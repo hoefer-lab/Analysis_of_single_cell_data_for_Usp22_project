@@ -48,12 +48,13 @@ LSK <- merge(HSC, y = c(MPP), add.cell.ids = NULL, project = "U22")
 rm(HSC)
 rm(MPP)
 LSK$branches[which(is.na(LSK$branches))] <- LSK$sample[which(is.na(LSK$branches))]
+LSK$sample[which(is.na(LSK$sample))] <- "MPP"
 
 # The SCTransform function is used in the conserve.memory mode and the vst function which is internally called in line 114 returns the warning that no corrected counts are returned
 # This warning can be neglected because corrected counts are computed in line 172 as the variable residual.type was not overwritten and is still set to pearson
 DefaultAssay(LSK) <- "RNA"
 LSK <- Seurat::SCTransform(LSK, verbose = FALSE, variable.features.n = NULL, variable.features.rv.th = 1.3, conserve.memory = TRUE, do.correct.umi = TRUE)
-saveRDS(object=LSK, file="LSK_all_experiments_normalized_together.rds")
+#saveRDS(object=LSK, file="LSK_all_experiments_normalized_together.rds")
 
 # 1. for TFs regulating NK cell lineage commitment
 Seurat_detection_LSK <- create_seurat_object_with_gene_detection_rates_in_MPP_subsets(MPP=LSK)
@@ -145,6 +146,16 @@ compare_expression_of_selected_genes_in_MPP_between_WT_and_KO_mice(seurat_object
                                                                    plot_width=30, plot_hight=22.5, 
                                                                    y_axis_label="average of normalized mRNA counts", 
                                                                    file_name="gene_plots_patch_genes_mobility_average_corrected_counts_LSK.pdf",
+                                                                   mode="gene_expression",
+                                                                   pt_size=3.0,
+                                                                   line_thickness=0.6)
+# 6. for genes_mobility_in_LSK with pooled MPP subsets
+Seurat_average_expression_LSK_pooled_MPP <- create_seurat_object_with_average_expression_per_gene_in_MPP_subsets(MPP=LSK, merge_sample_subsets=TRUE)
+compare_expression_of_selected_genes_in_MPP_between_WT_and_KO_mice(seurat_object=Seurat_average_expression_LSK_pooled_MPP, gene_set=genes_mobility_in_LSK, 
+                                                                   folder_with_plots=folder_with_plots, 
+                                                                   plot_width=30, plot_hight=22.5, 
+                                                                   y_axis_label="average of normalized mRNA counts", 
+                                                                   file_name="mobility_genes_average_expression_LSK_pooled_MPP.pdf",
                                                                    mode="gene_expression",
                                                                    pt_size=3.0,
                                                                    line_thickness=0.6)

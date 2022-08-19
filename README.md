@@ -23,4 +23,4 @@ Make sure that your computer remains connected to the internet while running the
 known issue:
 Sometimes the Biomart server is not available and therefore the cell annotation function fails. This issue should resolve when running the script at a later time.
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7007335.svg)](https://doi.org/10.5281/zenodo.7007335)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7011238.svg)](https://doi.org/10.5281/zenodo.7011238)

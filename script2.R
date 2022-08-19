@@ -2057,7 +2057,7 @@ run_GSEA_and_group_significant_GO_terms_by_overlap_of_gene_sets <- function(seur
   
   if (replicate_ID != 1){
     if (reuse_min_number_of_leading_edge_genes == TRUE){
-      min_number_of_leading_edge_genes <- readRDS(file=paste0(paste("min_number_of_leading_edge_genes", replicate_ID, sep = "_"), ".rds"))
+      min_number_of_leading_edge_genes <- readRDS(file=paste0(paste(paste("min_number_of_leading_edge_genes", cell_type, sep = "_"), replicate_ID, sep = "_"), ".rds"))
     } else {
       # find a value for min_number_of_leading_edge_genes that causes retention of GO groups of similar size compared to replicate1
       maximum_size_of_excluded_group_rep1 <- readRDS(file = paste0(paste("maximum_size_of_excluded_group_rep1", cell_type, sep = "_"), ".rds"))
@@ -2072,7 +2072,7 @@ run_GSEA_and_group_significant_GO_terms_by_overlap_of_gene_sets <- function(seur
         }
       }
       min_number_of_leading_edge_genes <- max(threshold_values[which(max_excluded_group_size <= maximum_size_of_excluded_group_rep1)])
-      saveRDS(object = min_number_of_leading_edge_genes, file = paste0(paste("min_number_of_leading_edge_genes", replicate_ID, sep = "_"), ".rds"))
+      saveRDS(object = min_number_of_leading_edge_genes, file = paste0(paste(paste("min_number_of_leading_edge_genes", cell_type, sep = "_"), replicate_ID, sep = "_"), ".rds"))
     }
   }
   

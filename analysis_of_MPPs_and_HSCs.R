@@ -305,7 +305,7 @@ rm(MPP_combined.sce.corrected_cell_numbers)
 rm(processed_GSEA_results)
 
 # do GSEA for LT-HSCs ####
-processed_GSEA_results_LTHSC <- run_GSEA_and_group_significant_GO_terms_by_overlap_of_gene_sets(seurat_object=LTHSC_combined, significance_threshold=0.05, edge_threshold_Jaccard=0.3, min_number_of_leading_edge_genes=100, replicate_ID=replicate_parameters$replicate, cell_type="LT")
+processed_GSEA_results_LTHSC <- run_GSEA_and_group_significant_GO_terms_by_overlap_of_gene_sets(seurat_object=LTHSC_combined, significance_threshold=0.05, edge_threshold_Jaccard=0.3, min_number_of_leading_edge_genes=100, replicate_ID=replicate_parameters$replicate, cell_type="LT", reuse_min_number_of_leading_edge_genes=FALSE)
 
 # check which are the biggest clusters that are removed by a given threshold
 size_of_GO_term_groups <- unlist(lapply(processed_GSEA_results_LTHSC[["GO_term_groups"]], length))
